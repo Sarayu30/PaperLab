@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Implementation plan for PaperLab, including human feedback, agent roles, system architecture, roadmap and realistic scenarios.">
+<title>PaperLab Implementation Plan</title>
+<style>
+:root{color-scheme:light;--ink:#17202b;--muted:#526170;--line:#d9d9d9;--blue:#173e62;--paper:#fff;--wash:#f3f6f9}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:30px}
+body{margin:0;background:var(--wash);color:var(--ink);font:16px/1.65 'Segoe UI',Arial,sans-serif}
+a{color:#155485;text-decoration-thickness:1px;text-underline-offset:3px;overflow-wrap:anywhere}
+a:focus-visible,button:focus-visible{outline:3px solid #1e7abe;outline-offset:3px}
+.layout{display:grid;grid-template-columns:270px minmax(0,960px);gap:42px;max-width:1320px;margin:auto;padding:36px 26px 72px}
+nav{position:sticky;top:28px;align-self:start;font-size:13px;line-height:1.45;max-height:calc(100vh - 56px);overflow:auto;padding:12px 6px}
+nav p{font-size:12px;font-weight:700;color:#000;letter-spacing:.08em;text-transform:uppercase;margin:0 0 18px}
+nav a{display:block;color:#364554;text-decoration:none;margin:0 0 12px;padding:3px 0}
+nav a:hover{color:#155485;text-decoration:underline}
+main{background:var(--paper);padding:48px 54px 64px;border:1px solid #e3e8ec;min-width:0}
+.tools{display:flex;justify-content:flex-end;gap:16px;align-items:center;font-size:13px;margin:0 0 32px;color:var(--muted)}
+button{background:#fff;border:1px solid #9aa9b7;border-radius:4px;padding:8px 13px;color:#17202b;cursor:pointer;font:inherit}
+h1,h2,h3{color:#000;line-height:1.23;font-weight:650;letter-spacing:-.02em;break-after:avoid}
+h1{font-size:38px;margin:0 0 12px;max-width:640px}
+h1+p{font-size:21px;line-height:1.45;color:#000;margin:0 0 10px}
+h1+p+p{color:var(--muted);font-size:13px;margin-bottom:40px}
+h2{font-size:25px;margin:52px 0 18px}
+h3{font-size:19px;margin:30px 0 12px}
+p{margin:0 0 17px}ul,ol{padding-left:24px;margin:12px 0 22px}li{padding-left:3px;margin:0 0 9px}
+strong{font-weight:650}.table-scroll{overflow-x:auto;margin:22px 0 26px}
+table{border-collapse:collapse;width:100%;font-size:13px;line-height:1.5;table-layout:fixed}
+th,td{border:1px solid var(--line);padding:12px 13px;text-align:left;vertical-align:middle;overflow-wrap:break-word}
+th{background:var(--blue);color:#fff;font-weight:650}tr:nth-child(even) td{background:#f2f6fa}
+th:first-child,td:first-child{width:27%}thead{display:table-header-group}tr{break-inside:avoid}
+pre{margin:20px 0 24px;padding:18px 20px;background:#f6f7f8;border:1px solid #d9d9d9;font:12px/1.65 Consolas,'Courier New',monospace;overflow-x:auto;white-space:pre;tab-size:2;break-inside:avoid}
+code{font-family:Consolas,'Courier New',monospace;font-size:.9em}pre code{font-size:inherit}
+footer{margin-top:40px;color:var(--muted);font-size:12px}
+@media(max-width:1050px){.layout{grid-template-columns:210px minmax(0,1fr);gap:22px;padding:24px 16px}main{padding:36px 30px}h1{font-size:33px}}
+@media(max-width:760px){.layout{display:block;padding:0}nav{position:static;max-height:none;padding:24px;background:#eaf0f5}nav a{display:inline-block;margin:0 16px 10px 0}main{border:0;padding:32px 22px}h1{font-size:31px}h2{font-size:23px}table{min-width:620px}pre{font-size:11px}}
+@media print{@page{size:A4;margin:17mm 16mm 18mm}html{scroll-behavior:auto}body{background:#fff;color:#000;font:10pt/1.45 'Segoe UI',Arial,sans-serif}.layout{display:block;padding:0;margin:0;max-width:none}nav,.tools{display:none}main{padding:0;border:0;max-width:none}h1{font-size:26pt}h1+p{font-size:14pt}h1+p+p{font-size:9pt;margin-bottom:24pt}h2{font-size:17pt;margin:25pt 0 10pt}h3{font-size:12pt;margin:17pt 0 8pt}p{margin-bottom:9pt;orphans:3;widows:3}li{margin-bottom:5pt}.table-scroll{overflow:visible;margin:12pt 0 16pt}table{min-width:0;font-size:8.5pt;line-height:1.35}th,td{padding:7pt 8pt}th{background:#e8eef4!important;color:#000!important}tr:nth-child(even) td{background:#f6f7f8!important}pre{font-size:8pt;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;padding:10pt}a{color:#000;text-decoration:underline}footer{font-size:8pt}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav aria-label="Document contents"><p>Document contents</p><a href="#1-purpose-and-recommended-approach">1 Purpose and recommended approach</a>
+<a href="#2-user-journey-and-features">2 User journey and features</a>
+<a href="#3-agent-roles-and-responsibilities">3 Agent roles and responsibilities</a>
+<a href="#4-system-architecture">4 System architecture</a>
+<a href="#5-end-to-end-workflow">5 End to end workflow</a>
+<a href="#6-human-feedback-at-every-stage">6 Human feedback at every stage</a>
+<a href="#7-implementation-of-feedback-and-state">7 Implementation of feedback and state</a>
+<a href="#8-scientific-reliability-and-execution-controls">8 Scientific reliability and execution controls</a>
+<a href="#9-scenario-walkthroughs">9 Scenario walkthroughs</a>
+<a href="#10-implementation-sequence">10 Implementation sequence</a>
+<a href="#11-testing-and-release-criteria">11 Testing and release criteria</a>
+<a href="#12-decisions-to-settle-before-implementation">12 Decisions to settle before implementation</a>
+<a href="#13-research-references">13 Research references</a></nav>
+<main id="main">
+<div class="tools"><a href="PaperLab_Implementation_Plan.md" download>Editable Markdown</a><button type="button" onclick="window.print()">Print or save as PDF</button></div>
+<h1 id="paperlab-implementation-plan">PaperLab Implementation Plan</h1>
+<p>Human guided agents for reproducing machine learning research</p>
+<p>Prepared for the project owner · 24 October 2026 · Version 1.0</p>
+<h2 id="1-purpose-and-recommended-approach">1 Purpose and recommended approach</h2>
+<p>PaperLab will turn a machine learning paper into a runnable implementation, recorded experiments, a comparison with the published results, one controlled extension, and a documented repository. The user remains able to correct, pause, redirect, or stop the work throughout the project.</p>
+<p><strong>Human in the loop is a core control mechanism.</strong> Feedback must change the saved project state and the work agents perform. A chat acknowledgment alone does not count as applying feedback. The interface must show the interpreted request, affected work, revised plan, and evidence that the change was carried out.</p>
+<p>We will use an explicit workflow controller built with LangGraph, specialist Deep Agents for reasoning and coding, and isolated workers for actual training and evaluation. Start with one paper, one target result, and one compute worker. Expand the number of agents and supported research domains only after this complete path works reliably.</p>
+<p>This document describes the proposed product, architecture, agent types, feedback behavior, implementation sequence, and acceptance criteria. The scenarios are illustrative product walkthroughs, not experiments that have already been run. Example scores and budgets are fictional.</p>
+<h3 id="product-boundaries">Product boundaries</h3>
+<ul><li>Support papers with accessible data and feasible compute first. Dataset access, missing implementation details, and hardware availability are explicit feasibility checks.</li>
+<li>Distinguish running released weights, retraining released code, and independently reimplementing a method.</li>
+<li>Report reproduced, partially reproduced, not reproduced under tested conditions, or inconclusive outcomes against a predefined target.</li>
+<li>Preserve the original experiment when adding extensions. A method change creates a separate branch of investigation.</li>
+<li>Prepare publication artifacts automatically. Publish externally when the user has authorized the destination, visibility, and content scope.</li></ul>
+<p>The September 2026 RECLAIM benchmark separates Run, Retrain, and Reimplement settings. Its evaluation shows that successful reproduction remains difficult and that generated implementations often lack numerical verification. This supports our focus on narrow targets and execution evidence. <a href="https://arxiv.org/abs/2609.28850">RECLAIM</a></p>
+<h2 id="2-user-journey-and-features">2 User journey and features</h2>
+<p>The user creates a project with a PDF or paper URL, or asks for a shortlist on a topic. They enter available hardware, a compute limit, an LLM spending limit, and the desired reproduction mode. The product presents a feasibility assessment and a concrete target before beginning expensive work.</p>
+<p>The main workspace contains a workflow view, feedback panel, experiment view, and evidence view. Each task displays its owner, current status, dependencies, artifact links, and any decision needed from the user. Progress comes from task and worker events rather than an invented percentage.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Feature</th><th scope="col">First usable release</th><th scope="col">Later expansion</th></tr></thead><tbody><tr><td>Paper intake</td><td>PDF or URL, appendix and repository links, source citations</td><td>Topic discovery and ranked paper shortlists</td></tr>
+<tr><td>Paper understanding</td><td>Method summary, target result extraction, missing details</td><td>Comparison across related papers</td></tr>
+<tr><td>Reproduction contract</td><td>Dataset, split, metric, seeds, success rule, budget</td><td>Multiple claims and experiments per paper</td></tr>
+<tr><td>Implementation</td><td>Task dependencies, code changes, tests, isolated execution</td><td>Parallel work in separate branches</td></tr>
+<tr><td>Human feedback</td><td>Chat, artifact comments, approve, edit, reject, pause, stop</td><td>Team roles and review assignments</td></tr>
+<tr><td>Experiment tracking</td><td>Logs, configurations, metrics, checkpoints, cost</td><td>Multiple GPU providers and experiment scheduling</td></tr>
+<tr><td>Verification</td><td>Method checks, metric comparison, rerun from a clean environment</td><td>Broader paper-specific evaluation libraries</td></tr>
+<tr><td>Extensions</td><td>One controlled ablation after the baseline</td><td>Multiple datasets and competing hypotheses</td></tr>
+<tr><td>Learning support</td><td>Explain code and methodology on demand</td><td>Guided questions and interview preparation</td></tr>
+<tr><td>Delivery</td><td>Repository export, README, report, reproduction command</td><td>Authorized GitHub publishing and Notion summaries</td></tr>
+<tr><td>External workspaces</td><td>Open the project in VS Code and export a runnable Colab notebook</td><td>Submit and track Kaggle runs through its supported command line tools</td></tr></tbody></table></div>
+<h3 id="modes-of-operation">Modes of operation</h3>
+<p><strong>Guided mode:</strong> review the reproduction contract, important methodology decisions, and the extension plan. Routine work proceeds inside the accepted scope.</p>
+<p><strong>Autonomous within limits:</strong> the user authorizes a scope and resource envelope once. Agents continue until a decision exceeds those limits, a material ambiguity blocks progress, the target completes, or the user intervenes.</p>
+<p><strong>Learning mode:</strong> add short explanations and understanding checks at milestones. These are a configurable teaching feature and do not change the scientific verification requirements.</p>
+<h2 id="3-agent-roles-and-responsibilities">3 Agent roles and responsibilities</h2>
+<p>An agent is a model that reasons and calls tools. A worker is a process that executes code. A controller is application code that enforces state transitions and permissions. These responsibilities remain separate so that a model cannot bypass project limits by changing its plan.</p>
+<p>The initial release has four configured agent roles: a research analyst, a planner, an implementation agent, and an independent verifier. Analysis and writing initially run as scoped tasks under the analyst. The full design separates them when their workload warrants it.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Role and type</th><th scope="col">Inputs and tools</th><th scope="col">Output and authority</th></tr></thead><tbody><tr><td>Research analyst — research agent</td><td>Paper, appendices, search, source extraction, repository inspection</td><td>Cited summary, feasibility assessment, ambiguities; cannot invent missing parameters</td></tr>
+<tr><td>Experiment planner — planning agent</td><td>Accepted target, budgets, dependencies, feedback</td><td>Versioned contract and task graph; proposes changes but cannot grant new spending authority</td></tr>
+<tr><td>Implementation agent — coding agent</td><td>One task, relevant paper sections, repository, sandbox tools</td><td>Code commit, tests, implementation notes; cannot edit protected evaluation rules</td></tr>
+<tr><td>Verification agent — reviewer agent</td><td>Paper, contract, code, immutable run evidence</td><td>Fidelity findings and claim verdicts; no authority to rewrite recorded results</td></tr>
+<tr><td>Analysis agent — scientific analysis agent</td><td>Validated metrics, configurations, failed runs</td><td>Comparisons, uncertainty, discrepancy hypotheses, extension design</td></tr>
+<tr><td>Documentation agent — writing agent</td><td>Verified evidence, accepted limitations, implementation notes</td><td>README and report with claim-to-evidence links; cannot create numerical results</td></tr>
+<tr><td>Learning coach — optional teaching agent</td><td>Verified explanations, user questions, selected code</td><td>Explanations and understanding checks; cannot change experiment settings</td></tr></tbody></table></div>
+<p><strong>Feedback interpretation is a planner capability, not another always-running agent.</strong> An LLM may translate a comment into a proposed structured change. Application code validates that change against permissions, scientific constraints, and the current project revision.</p>
+<p><strong>The workflow controller, job scheduler, budget service, artifact store, and publication service are deterministic services.</strong> They handle transitions and execution regardless of what an agent says. The workflow controller is the final authority on which task may run next.</p>
+<p>Use a reasoning-capable model for planning and verification, a coding-capable model for implementation, and a lower-cost model where extraction or formatting evaluations support it. Select actual models through project evaluations; record model, prompt, tool, and framework versions with every run.</p>
+<h3 id="delegation-rules">Delegation rules</h3>
+<ul><li>Give each task an objective, relevant sources, allowed tools, expected output schema, acceptance criteria, and resource limit.</li>
+<li>Parallelize independent reading, dataset inspection, or experiments. Coordinate dependent implementation changes through one repository owner or separate branches.</li>
+<li>Cap active subagents and nesting depth. Begin with at most two concurrent reasoning tasks and one compute job; tune from measurements.</li>
+<li>Pass compact context and artifact references. Store full logs and papers outside the conversation window.</li>
+<li>Share verified conclusions and explicit hypotheses separately. Do not promote an agent guess into durable factual memory.</li></ul>
+<p>These choices follow the context isolation and selective delegation patterns described in <a href="https://www.anthropic.com/engineering/multi-agent-research-system">Anthropic's multi-agent research system</a> and <a href="https://www.anthropic.com/research/effective-context-engineering-for-ai-agents">context engineering guidance</a>.</p>
+<h2 id="4-system-architecture">4 System architecture</h2>
+<p>The browser communicates with a Python API. The API stores user actions, streams progress, and invokes the workflow. Long-running training jobs execute outside web requests and outside LLM conversations.</p>
+<pre aria-label="Architecture or workflow outline"><code>User workspace
+  | feedback, approvals, pause and stop
+  v
+API and event stream
+  |
+  +--&gt; Feedback service --&gt; change validation --&gt; revised plan
+  |
+  +--&gt; LangGraph workflow controller
+         | checkpoints, task dependencies, policy checks
+         +--&gt; Deep Agents for research, planning, coding and review
+         +--&gt; Job scheduler --&gt; isolated CPU or GPU workers
+         +--&gt; Evidence registry --&gt; results and report generation
+
+Shared storage
+  PostgreSQL: projects, revisions, feedback, approvals, tasks and jobs
+  Artifact storage: papers, datasets or references, logs and checkpoints
+  Git: code history                  MLflow: experiment records</code></pre>
+<div class="table-scroll"><table><thead><tr><th scope="col">Component</th><th scope="col">Proposed implementation</th><th scope="col">Reason</th></tr></thead><tbody><tr><td>User interface</td><td>React with Next.js</td><td>Workflow, artifact review, feedback, experiment comparison</td></tr>
+<tr><td>API</td><td>Python with FastAPI</td><td>Typed project endpoints and Python ML integration</td></tr>
+<tr><td>Workflow</td><td>LangGraph with PostgreSQL checkpoints</td><td>Resumable stages and explicit routing</td></tr>
+<tr><td>Reasoning tasks</td><td>Deep Agents with pinned dependencies</td><td>Tools, filesystem context, focused delegation and steering</td></tr>
+<tr><td>Job execution</td><td>Separate worker service and durable PostgreSQL job table</td><td>Recoverable job submission without an extra queue in the MVP</td></tr>
+<tr><td>Worker isolation</td><td>Containers on a dedicated worker host; stronger isolation for public multi-user use</td><td>Separate generated code from application credentials and host files</td></tr>
+<tr><td>Metadata</td><td>PostgreSQL</td><td>Transactions, revisions, feedback history, leases and permissions</td></tr>
+<tr><td>Experiment tracking</td><td>MLflow</td><td>Parameters, metrics, artifacts and run comparisons</td></tr>
+<tr><td>Artifact storage</td><td>Local project storage initially; object storage for deployment</td><td>Large files remain outside checkpoint state</td></tr>
+<tr><td>Source control</td><td>Git workspaces per project and revision</td><td>Trace implementation changes to experiments</td></tr>
+<tr><td>Observability</td><td>Structured logs and trace records</td><td>Task, feedback and experiment IDs across services</td></tr></tbody></table></div>
+<p>LangGraph checkpointers support thread state recovery; persistent stores serve longer-lived information. Use durable storage in deployment rather than an in-memory checkpointer. <a href="https://docs.langchain.com/oss/python/langgraph/persistence">LangGraph persistence</a></p>
+<p>Deep Agents supplies agent execution capabilities, but the application still owns budgets, job cancellation, scientific validity, and feedback impact analysis. Configure planning explicitly and pin a tested release because defaults change. <a href="https://docs.langchain.com/oss/python/deepagents/overview">Deep Agents overview</a></p>
+<p>MLflow provides the experiment record and comparison layer. The evidence registry links those records to source claims and plan revisions. <a href="https://mlflow.org/docs/latest/tracking/">MLflow tracking</a></p>
+<h3 id="coding-and-compute-in-vs-code-kaggle-and-colab">Coding and compute in VS Code Kaggle and Colab</h3>
+<p>PaperLab keeps the project in a normal Git repository with scripts, configuration, tests, and an optional notebook. The user chooses a workspace and a compute destination for each experiment. The same experiment configuration and run ID travel with the job, so results can be compared across platforms without losing their origin. User edits in an external workspace return as a commit or imported notebook revision; the verifier checks them before a revised experiment is accepted.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Platform</th><th scope="col">What the user does there</th><th scope="col">PaperLab integration and practical boundary</th></tr></thead><tbody><tr><td>VS Code</td><td>Review and edit code, run tests, debug and use the terminal or notebooks</td><td>Open the repository, include documented tasks and environment setup, and sync Git changes. Local, remote SSH, and container development are options according to available compute. This is the preferred coding workspace.</td></tr>
+<tr><td>Kaggle</td><td>Run a notebook or script where Kaggle data and eligible accelerators are available</td><td>Package a versioned Kaggle kernel, submit it through the official CLI, check status, fetch outputs, and attach them to the project run. Accelerator availability and runtime limits must be checked for that account and workload.</td></tr>
+<tr><td>Google Colab</td><td>Open a generated notebook, select a runtime, execute cells and inspect outputs</td><td>Generate a self-contained notebook that installs dependencies, loads permitted data, resumes checkpoints where possible, and writes metrics and artifacts. For ordinary managed Colab, the user starts and supervises the notebook. Full unattended runtime control is a separate integration and is not assumed.</td></tr></tbody></table></div>
+<p>The coding agent works against the Git repository in an authorized execution environment. If the user makes a change in VS Code or a notebook, PaperLab imports that change and reevaluates dependent tasks. If a job runs on Kaggle, the job adapter submits the code and retrieves results. Colab acts as a user-operated execution surface in the initial release. Google's Colab runtime API is beta and allowlist based; free managed runtimes are subject to changing limits and restrictions on remote control. We should not promise unattended multi-day training there. <a href="https://github.com/Kaggle/kaggle-cli/blob/main/docs/kernels.md">Kaggle CLI</a> · <a href="https://developers.google.com/colab/api/reference/rest">Colab API</a> · <a href="https://research.google.com/colaboratory/faq.html">Colab FAQ</a></p>
+<p>For long training, write checkpoints and metrics outside the disposable runtime, then resume on a suitable worker when supported. VS Code can connect to that worker for development; Kaggle is useful for bounded submissions; a persistent dedicated worker is the appropriate default when uninterrupted, multi-day execution is required. The experiment record captures the platform, hardware, image or package lockfile, dataset version, commit, seed, and artifact hashes.</p>
+<h2 id="5-end-to-end-workflow">5 End to end workflow</h2>
+<div class="table-scroll"><table><thead><tr><th scope="col">Stage</th><th scope="col">Main work</th><th scope="col">Exit condition and human involvement</th></tr></thead><tbody><tr><td>Intake and feasibility</td><td>Inspect paper, data, code, licenses and compute needs</td><td>Select a feasible target or explain the blocker</td></tr>
+<tr><td>Read and extract</td><td>Recover equations, algorithms, tables and evaluation details</td><td>Sources attached; unresolved assumptions visible</td></tr>
+<tr><td>Define the contract</td><td>Fix mode, target result, protocol, success rule and budget</td><td>User accepts scope in guided mode; policy validates existing authorization</td></tr>
+<tr><td>Plan</td><td>Create dependency graph and task acceptance checks</td><td>Tasks are executable within available tools and resources</td></tr>
+<tr><td>Implement</td><td>Build data path, baseline, model, loss and evaluation incrementally</td><td>Component checks and methodology review pass</td></tr>
+<tr><td>Smoke test</td><td>Tiny-data training, shape and gradient checks, metric checks</td><td>Data path and model run before full compute is spent</td></tr>
+<tr><td>Run experiments</td><td>Submit configuration-bound jobs and capture outputs</td><td>Planned jobs complete or a bounded failure path is recorded</td></tr>
+<tr><td>Verify and analyze</td><td>Compare implementation and measured results to the paper</td><td>Claim verdict supported by evidence; repair if justified and affordable</td></tr>
+<tr><td>Extend</td><td>Test one accepted ablation or additional hypothesis</td><td>Separate experiment and comparison against the retained baseline</td></tr>
+<tr><td>Package</td><td>Generate setup instructions, results, limitations and report</td><td>Clean-environment rerun checked; export or authorized publication</td></tr></tbody></table></div>
+<p>Review happens throughout implementation, with a consolidated audit after experiments. A failed check returns to the smallest affected task. A change to preprocessing may invalidate all downstream training; a README wording change should not trigger a training rerun.</p>
+<p>The reproduction contract stores the paper and target table row, task mode, dataset version and split, metric definition, preprocessing, training settings, seeds, hardware constraints, expected artifacts, numerical success criterion, missing details, approved deviations, and budgets. Select the success criterion before evaluating results, accounting for reported variability and available evidence. Do not choose a tolerance after seeing the outcome.</p>
+<p>Maintain separate state fields for <strong>workflow stage</strong>, <strong>execution status</strong>, and <strong>scientific outcome</strong>. A completed workflow may legitimately produce an inconclusive scientific outcome.</p>
+<pre aria-label="Architecture or workflow outline"><code>Execution status
+READY -&gt; RUNNING -&gt; COMPLETED
+             |-&gt; WAITING_FOR_HUMAN -&gt; READY
+             |-&gt; PAUSE_REQUESTED -&gt; PAUSED -&gt; READY
+             |-&gt; STOP_REQUESTED -&gt; CANCELLED
+             |-&gt; FAILED -&gt; bounded retry or user decision
+
+Scientific outcome
+UNASSESSED | REPRODUCED | PARTIALLY_REPRODUCED
+NOT_REPRODUCED_UNDER_TESTED_CONDITIONS | INCONCLUSIVE</code></pre>
+<h2 id="6-human-feedback-at-every-stage">6 Human feedback at every stage</h2>
+<p>The earlier proposal included intervention points. This implementation makes human direction continuous: feedback can arrive during reading, planning, coding, training, analysis, or reporting. The system records it immediately and applies it at the earliest appropriate execution boundary.</p>
+<h3 id="feedback-controls">Feedback controls</h3>
+<p>The user can send a global instruction, comment on a paper passage or artifact, edit a configuration, reject a proposed action with a reason, approve a concrete change, pause and resume, stop a job, or branch an experiment. Every feedback entry has a visible status: received, interpreting, needs clarification, accepted, applying, applied, or unable to apply. An unable-to-apply status includes a reason and a next action.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Feedback type</th><th scope="col">Example</th><th scope="col">Required behavior</th></tr></thead><tbody><tr><td>Preference</td><td>Explain the training loop more simply</td><td>Update explanations; leave scientific artifacts unchanged</td></tr>
+<tr><td>Correction</td><td>Section 4 uses macro F1</td><td>Check the cited section; update affected evaluation and reports</td></tr>
+<tr><td>Constraint</td><td>Do not exceed two GPU hours</td><td>Enforce the remaining limit, stop new admissions, assess running work</td></tr>
+<tr><td>Scope change</td><td>Use a different dataset</td><td>Create a revised contract or extension branch and identify invalidated results</td></tr>
+<tr><td>Rejection</td><td>Do not use the authors' repository</td><td>Move to reimplementation, reassess feasibility and budget</td></tr>
+<tr><td>Control</td><td>Pause now or stop all jobs</td><td>Prevent new dispatch immediately and request worker cancellation or checkpointing</td></tr>
+<tr><td>Factual disagreement</td><td>This result proves the method is better</td><td>Examine evidence and revise conclusions only if supported</td></tr>
+<tr><td>Conflicting instruction</td><td>Finish today and run every large experiment</td><td>Present the conflict and request a choice; continue independent work</td></tr></tbody></table></div>
+<h3 id="how-feedback-is-applied">How feedback is applied</h3>
+<ol><li><strong>Record:</strong> save the original text, actor, target, timestamp, current plan revision, and a unique feedback ID. Return an acknowledgment immediately.</li>
+<li><strong>Interpret:</strong> map the request to a typed change proposal with scope, urgency, rationale, and affected fields. Low-risk explicit edits can be parsed directly.</li>
+<li><strong>Validate:</strong> verify authorization, budget, allowed fields, scientific implications, and whether the target revision is still current. Do not execute an unvalidated model-generated patch.</li>
+<li><strong>Find impact:</strong> traverse task and artifact dependencies. Mark downstream results stale for the proposed revision, while preserving their history and the validity of unrelated work.</li>
+<li><strong>Coordinate:</strong> block affected task dispatch; request cancellation or a checkpoint for affected jobs. Show actual worker acknowledgments rather than claiming immediate cancellation.</li>
+<li><strong>Revise:</strong> atomically save the accepted contract and plan revision, the change diff, and the tasks to rerun. Invalidate approvals tied to superseded content.</li>
+<li><strong>Resume:</strong> send each affected agent a scoped task using the new revision. Reject stale writes from older tasks. Allow unaffected tasks to continue when safe.</li>
+<li><strong>Verify and close:</strong> rerun the relevant checks and attach the changed artifact links. Mark feedback applied only when its acceptance condition is satisfied.</li></ol>
+<p><strong>The user sees a change receipt:</strong> “Applied your metric correction. Plan 4 replaces plan 3. Evaluation and results analysis will rerun; training remains valid because the metric did not affect checkpoint selection.” If checkpoint selection depended on the wrong metric, the receipt must include checkpoint reselection or retraining as appropriate.</p>
+<h3 id="when-to-ask-and-when-to-continue">When to ask and when to continue</h3>
+<p>Apply clear, authorized feedback without asking the same question again. Pause for a precise clarification when ambiguity would materially change the experiment or cost. Ask before exceeding an existing resource limit, changing the accepted scientific target in a way the user has not specified, or publishing outside the accepted authorization.</p>
+<p>Approval requests show the exact proposed action, affected artifacts, cost estimate, uncertainty, and scope. Bind approval to the action payload hash and plan revision. Silence never grants approval; expiry prevents execution. A clarification reply is not automatically permission for a separate costly action.</p>
+<p>User instructions can change the research objective, but cannot make an unsupported numerical claim become true. If a requested methodological change creates an extension, retain that label even when the user prefers the new method.</p>
+<h3 id="running-jobs-and-cancellation">Running jobs and cancellation</h3>
+<p>The feedback API accepts input while jobs run. It does not mean arbitrary GPU code can pause instantly. The scheduler first blocks new affected jobs. Cooperative training jobs checkpoint at a batch or epoch boundary and report their stop state. After a configurable timeout, the worker may terminate the process tree, record an incomplete run, and release its lease. Unresponsive workers are isolated and their late outputs cannot update the active plan.</p>
+<p>Set a target of under two seconds for feedback acknowledgment in the application. Cancellation latency is reported separately and depends on the worker. Hard compute limits require worker/provider enforcement; a natural-language instruction alone cannot guarantee a spending ceiling.</p>
+<h2 id="7-implementation-of-feedback-and-state">7 Implementation of feedback and state</h2>
+<p>Use LangGraph interrupts for planned human decision points. Resume a paused graph with the same thread ID and a structured decision. Node execution can restart on resume, so keep side effects in separate idempotent operations. <a href="https://docs.langchain.com/oss/python/langgraph/interrupts">LangGraph interrupts</a></p>
+<p>Configure tool-level approval through Deep Agents where useful. Its approval mechanism does not replace the application feedback service or worker cancellation. Background subagents can support steering, but changes still pass through the revision and policy checks. <a href="https://docs.langchain.com/oss/python/deepagents/human-in-the-loop">Deep Agents human in the loop</a> · <a href="https://docs.langchain.com/oss/python/deepagents/async-subagents">Async subagents</a></p>
+<h3 id="core-records">Core records</h3>
+<div class="table-scroll"><table><thead><tr><th scope="col">Record</th><th scope="col">Required fields</th></tr></thead><tbody><tr><td>Project</td><td>Owner, paper, mode, execution status, active revision, limits</td></tr>
+<tr><td>Contract revision</td><td>Target, protocol, success criteria, assumptions, deviations, parent revision</td></tr>
+<tr><td>Task</td><td>Dependencies, agent role, input hashes, expected output, status, revision</td></tr>
+<tr><td>Feedback</td><td>Actor, raw text, target, base revision, interpretation, status, resolution</td></tr>
+<tr><td>Change proposal</td><td>Validated patch, impact set, cost effect, decision requirement</td></tr>
+<tr><td>Approval</td><td>Actor, action hash, revision, decision, expiry, consumed status</td></tr>
+<tr><td>Experiment run</td><td>Commit, configuration hash, dataset fingerprint, seed, hardware, metrics, logs, revision</td></tr>
+<tr><td>Artifact</td><td>URI, content hash, producing task, input artifacts, validation status</td></tr>
+<tr><td>Job</td><td>Worker lease, heartbeat, idempotency key, resource reservation, cancellation status</td></tr>
+<tr><td>Event</td><td>Project sequence, event type, actor, revision, correlation IDs, timestamp</td></tr></tbody></table></div>
+<p>PostgreSQL is the authority for accepted revisions. Apply each revision using an optimistic concurrency check on the expected version and a transaction. Use a transactional outbox to publish work only after the corresponding state commit. Scheduler deliveries may repeat; the worker deduplicates them with an idempotency key such as project, task, revision, and attempt.</p>
+<p>A graph checkpoint does not roll back external GPU jobs or Git commits. Reconcile those resources explicitly when resuming or branching. Accept a job result into the active project only if its input hashes and revision still match; otherwise retain it as historical evidence.</p>
+<h3 id="feedback-api-outline">Feedback API outline</h3>
+<pre aria-label="Architecture or workflow outline"><code>POST /projects
+POST /projects/{id}/feedback
+POST /projects/{id}/decisions/{decision_id}
+POST /projects/{id}/pause
+POST /projects/{id}/resume
+POST /projects/{id}/stop
+GET  /projects/{id}/events          server sent events with replay cursor
+GET  /projects/{id}/plan
+GET  /projects/{id}/runs
+GET  /projects/{id}/artifacts</code></pre>
+<p>Authenticate the actor and check project ownership on every endpoint. Feedback and decision requests carry an idempotency key and base revision. Stale approvals return a conflict with the current change preview. The event stream uses persisted sequence IDs so a reconnecting browser can recover missed updates.</p>
+<h3 id="example-change-record">Example change record</h3>
+<pre aria-label="Example change record"><code>{
+  &quot;feedback_id&quot;: &quot;fb_028&quot;,
+  &quot;project_id&quot;: &quot;paperlab_demo&quot;,
+  &quot;base_revision&quot;: 3,
+  &quot;request&quot;: &quot;Use macro F1 as specified in Section 4&quot;,
+  &quot;change_type&quot;: &quot;methodology_correction&quot;,
+  &quot;patch&quot;: {&quot;evaluation.metric&quot;: &quot;macro_f1&quot;},
+  &quot;impact&quot;: [&quot;evaluation&quot;, &quot;comparison&quot;, &quot;report&quot;],
+  &quot;new_revision&quot;: 4,
+  &quot;status&quot;: &quot;applying&quot;
+}</code></pre>
+<p>The impact shown is valid only after checking whether the original metric affected model selection or training. The application computes that dependency; it is not assumed from the text alone.</p>
+<h2 id="8-scientific-reliability-and-execution-controls">8 Scientific reliability and execution controls</h2>
+<p>Every conclusion must resolve to a chain of evidence: paper claim, implementation task, code commit, experiment configuration, dataset version, run outputs, and verification verdict. Store original logs and raw metrics as immutable artifacts. Corrections create new records rather than silently replacing history.</p>
+<p>The verifier combines executable checks with paper-specific review. Use schema checks, shape and gradient checks, tiny-data overfitting, metric fixture tests, split integrity checks, and a clean-environment execution. A reviewer model can inspect methodology but cannot replace measured results or independently establish correctness by agreeing with another model.</p>
+<p>Predefine seeds and report the planned aggregate, variability, and failed runs. Use the validation split for repair and selection; keep the final test evaluation controlled. Avoid repeatedly tuning against the paper's test score. Protect the evaluator and final test artifacts from the implementation agent's write permissions.</p>
+<p>Budget enforcement covers model calls, wall-clock time, CPU or GPU allocation, storage, retries, and concurrent jobs. Reserve estimated resources before admission and reconcile actual usage. Reject new jobs that cannot fit; stop running jobs when their hard limit is reached. Reuse valid artifacts by hashes rather than rerunning everything after each comment.</p>
+<p>Generated code executes in project-specific isolation with restricted mounts and network access. Keep cloud credentials and publication tokens in narrowly scoped services outside the coding workspace. Treat text inside papers, repositories, and websites as research data, never as permission to change project policies.</p>
+<p>Sakana AI's October 2026 Agentic Scientist uses executable research specifications, experimental evidence, and independent audits. Its evidence-linked approach informs this design, while PaperLab keeps reproduction and extensions distinct. <a href="https://pub.sakana.ai/agentic-scientist/">Agentic Scientist</a></p>
+<h2 id="9-scenario-walkthroughs">9 Scenario walkthroughs</h2>
+<p>The following dialogues show intended live behavior. They use illustrative tasks and invented numbers to make state changes concrete.</p>
+<h3 id="scenario-a-start-a-complete-reproduction">Scenario A Start a complete reproduction</h3>
+<p><strong>User:</strong> “Reimplement this small image-classification paper. I have one 8 GB GPU and a four-hour compute limit. Reproduce the main table result and explain the code.”</p>
+<p><strong>System:</strong> checks the dataset, source details, model size, and likely runtime; presents the target metric, protocol, missing settings, and budget estimate. If feasibility is uncertain, it schedules an inexpensive pilot within the limit rather than promising completion.</p>
+<p><strong>After scope acceptance:</strong> the analyst extracts evidence, the planner creates dependencies, the coder implements and smoke-tests, and the worker trains. The verifier checks the implementation and experiment protocol. The learning coach explains selected components on request.</p>
+<p><strong>Outcome:</strong> a repository, measured comparison, explicit limitations, and a reproduction verdict. If compute is insufficient, the project finishes with an honest partial or inconclusive result and a clear continuation plan.</p>
+<h3 id="scenario-b-correct-the-evaluation-while-training-is-running">Scenario B Correct the evaluation while training is running</h3>
+<p><strong>User:</strong> “The paper uses macro F1, but your evaluator uses micro F1. Fix this.”</p>
+<p><strong>System receipt:</strong> “I will check the cited protocol, update the evaluator, and determine whether checkpoint selection is affected.”</p>
+<p>The planner verifies the correction, creates a new revision, and marks evaluation and reporting stale. If training and checkpoint selection are independent of this metric, the current training can continue and retained predictions can be reevaluated. If checkpoint selection used micro F1, the system reassesses saved checkpoints or reruns necessary work.</p>
+<p><strong>What the user sees:</strong> the old and new metric definitions, affected tasks, updated scores, and the evidence that feedback was applied. Old results remain available with a superseded label.</p>
+<h3 id="scenario-c-reduce-cost-mid-experiment">Scenario C Reduce cost mid experiment</h3>
+<p><strong>User:</strong> “Stop after this seed and skip the remaining two seeds. I only have 30 minutes left.”</p>
+<p>The controller prevents remaining seeds from starting and imposes the new time limit on the current job. It lets that seed finish only if it remains within the limit; otherwise the worker checkpoints and stops. The report switches from a planned three-seed aggregate to a clearly labeled single-seed observation.</p>
+<p><strong>System receipt:</strong> “Two queued runs were cancelled. The current run has a 30-minute cap. The final result will not support the originally planned across-seed uncertainty estimate.”</p>
+<p><strong>Outcome:</strong> reduced scope, preserved evidence, revised cost, and no false three-seed claim.</p>
+<h3 id="scenario-d-change-the-method-after-seeing-results">Scenario D Change the method after seeing results</h3>
+<p><strong>User:</strong> “AdamW might work better. Replace the paper's optimizer with it.”</p>
+<p>The system treats the explicit request as authorization for a method change within the existing budget, while preserving the original reproduction run. It creates an extension branch and compares the new optimizer against the original under matched conditions. If this exceeds the budget, it asks for a specific scope or budget decision.</p>
+<p><strong>System receipt:</strong> “I created an optimizer extension. The original method and results remain the reproduction baseline.”</p>
+<p><strong>Outcome:</strong> a legitimate extension comparison; improved performance does not retroactively make the original reproduction successful.</p>
+<h3 id="scenario-e-give-ambiguous-feedback-or-disagree-with-a-conclusion">Scenario E Give ambiguous feedback or disagree with a conclusion</h3>
+<p><strong>User:</strong> “Make it better and say we beat the paper.”</p>
+<p>The system separates the ambiguous improvement request from the factual claim. It asks whether “better” means accuracy, runtime, memory, or clarity, and continues unaffected work. It explains that a superiority claim needs a comparable evaluation and supporting results.</p>
+<p>If the observed score is 82.1 versus a paper score of 82.0, the system checks seeds, uncertainty, protocol, and comparability before interpreting the difference. It may report that the evidence is insufficient to establish improvement.</p>
+<p><strong>Outcome:</strong> the user's intended improvement becomes a concrete target; the report remains faithful to the evidence.</p>
+<h3 id="scenario-f-resume-after-a-crash-and-late-feedback">Scenario F Resume after a crash and late feedback</h3>
+<p>The browser disconnects while a training worker continues. The user later reconnects and says, “Resume, but use the revised split file I uploaded.”</p>
+<p>The API replays events, reconciles the worker job, validates the split, and creates a new revision. Existing runs retain their original split identity and cannot be counted toward the new contract. The planner reruns data validation and the necessary training and evaluation tasks.</p>
+<p>If an older agent finishes after this change, its result is stored against the old revision and excluded from the active report. A duplicate resume request cannot launch a second copy of the same job.</p>
+<p><strong>Outcome:</strong> continuation from durable state, with stale work prevented from contaminating the revised experiment.</p>
+<h3 id="scenario-g-review-and-publish">Scenario G Review and publish</h3>
+<p><strong>User:</strong> “The report is too technical. Shorten it, explain the limitations, and publish to my public portfolio repository.”</p>
+<p>The writer revises the narrative without altering raw results. The application prepares the exact repository diff and publication preview, checks the destination and authorized scope, and executes only the publication covered by that authorization. Any new ambiguity about visibility, repository, or included material requires clarification.</p>
+<p><strong>Outcome:</strong> a readable portfolio artifact whose claims still link to experiments. The publication record identifies the exact commit and report version.</p>
+<h2 id="10-implementation-sequence">10 Implementation sequence</h2>
+<p>Build complete vertical slices so that each milestone demonstrates working behavior. The following six to eight week sequence is a planning estimate for one developer already comfortable with Python, web APIs, and ML tooling. It assumes accessible models and compute; it is not a delivery guarantee.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Milestone</th><th scope="col">Implementation work</th><th scope="col">Acceptance gate</th></tr></thead><tbody><tr><td>1 Foundation and specification</td><td>Project schema, contract schema, paper intake, one curated paper, protected evaluator and mock workers</td><td>A project and contract persist across restart; a small known experiment can be scored</td></tr>
+<tr><td>2 Execution and evidence</td><td>Worker isolation, durable jobs, logs, Git linkage, dataset fingerprints, MLflow and budget checks; VS Code setup and Colab export</td><td>One real experiment runs from a clean environment and produces traceable evidence</td></tr>
+<tr><td>3 Human feedback</td><td>Feedback API, interpretation, validation, revisions, approvals, pause, cancellation and event stream</td><td>A metric correction reruns affected work; a stale approval is rejected; duplicate feedback is harmless</td></tr>
+<tr><td>4 Agent workflow</td><td>Four initial roles, task schemas, scoped tools, smoke tests, bounded repair and review</td><td>One paper target travels from intake to verified report with visible human interventions</td></tr>
+<tr><td>5 Product and extension</td><td>Workflow UI, artifact comments, experiment comparison, one ablation, learning explanations, export and Kaggle run adapter</td><td>User can redirect work from the UI and inspect the before-and-after evidence</td></tr>
+<tr><td>6 Reliability and evaluation</td><td>Crash recovery, concurrent feedback tests, cost accounting, benchmark trials and documentation</td><td>No stale writes or duplicate jobs in the defined recovery tests; measured comparison with a baseline</td></tr></tbody></table></div>
+<p>A useful first demonstration should arrive before the full interface: one curated paper, CLI or minimal UI, feedback during a run, and an evidence-linked report. Add topic discovery and multiple compute providers after the reproduction path is reliable.</p>
+<h3 id="repository-organization">Repository organization</h3>
+<pre aria-label="Architecture or workflow outline"><code>paperlab/
+  apps/web/                  workflow and feedback interface
+  services/api/              authenticated project endpoints
+  services/orchestrator/     graph, routing and revision handling
+  services/worker/           sandbox lifecycle and job execution
+  packages/contracts/       schemas for tasks, feedback and results
+  packages/agents/           role prompts and tool definitions
+  packages/skills/           reusable research procedures
+  packages/evaluation/       protected checks and grading rubrics
+  packages/storage/          revisions, events and artifact access
+  migrations/               database schema changes
+  tests/                    workflow, feedback and recovery tests
+  examples/                 curated reproduction projects
+  docs/                     architecture and operating instructions</code></pre>
+<p>Keep user research repositories outside the application source tree. A project workspace contains the paper, notes, implementation, configuration, data references, result references, and README. Large datasets and checkpoints belong in artifact storage rather than normal Git history.</p>
+<h2 id="11-testing-and-release-criteria">11 Testing and release criteria</h2>
+<p>The most important tests verify behavior across agent, state, and worker boundaries. They should demonstrate that feedback changes execution and that scientific claims remain linked to valid evidence.</p>
+<div class="table-scroll"><table><thead><tr><th scope="col">Test</th><th scope="col">Expected behavior</th></tr></thead><tbody><tr><td>Feedback before dispatch</td><td>New task receives revised inputs; old task is not started</td></tr>
+<tr><td>Feedback during a job</td><td>Affected dispatch stops; cancellation or checkpoint status is visible</td></tr>
+<tr><td>Old task finishes late</td><td>Output retained historically; active report stays on the current revision</td></tr>
+<tr><td>Duplicate request</td><td>One feedback event or decision effect and one intended job</td></tr>
+<tr><td>Conflicting edits</td><td>Stale base revision rejected or explicitly reconciled</td></tr>
+<tr><td>Approval after plan change</td><td>Old approval cannot authorize the revised action</td></tr>
+<tr><td>Controller crash</td><td>Checkpoint recovery reconciles existing jobs without duplicate launches</td></tr>
+<tr><td>Budget exhaustion</td><td>No new work admitted; running work obeys enforced limits</td></tr>
+<tr><td>Metric correction</td><td>Independent expected-value test passes and affected comparisons regenerate</td></tr>
+<tr><td>Dataset or split change</td><td>Dependent runs become stale and cannot support the new target</td></tr>
+<tr><td>Unsupported report statement</td><td>Publication package flags the claim until evidence or wording is corrected</td></tr>
+<tr><td>Clean-environment rerun</td><td>Reproduction command recreates the declared evaluation within its defined tolerance</td></tr></tbody></table></div>
+<p>Evaluate a small suite of feasible papers using comparable budgets. Compare a single coding-agent baseline, the proposed workflow, and versions without selected features such as independent verification. Run repeated trials where affordable and report the intervention policy used. Human-assisted and unattended results must be distinguishable.</p>
+<p>Track verified target completion, false success claims, feedback application correctness, manual intervention time, cost per verified claim, elapsed time, duplicate jobs, and stale-result acceptance. Use executable graders for concrete outcomes and calibrated human review for methodology quality. <a href="https://www.anthropic.com/research/demystifying-evals-for-ai-agents">Agent evaluation guidance</a></p>
+<h3 id="first-release-definition-of-done">First release definition of done</h3>
+<ul><li>One selected paper completes the full path from contract to report using recorded execution evidence.</li>
+<li>A human can correct a metric, reduce the budget, pause, resume, and request an extension without restarting the whole project.</li>
+<li>Every feedback item has an auditable resolution, with changed artifacts or an explicit reason it could not be applied.</li>
+<li>Tests demonstrate no duplicate launches or stale-result promotion in the specified crash and concurrency cases.</li>
+<li>A fresh environment can execute the reproduction command; the result is judged against the accepted target.</li>
+<li>The exported repository includes setup, data instructions, results, deviations, limitations, one extension where feasible, and learning notes.</li></ul>
+<h2 id="12-decisions-to-settle-before-implementation">12 Decisions to settle before implementation</h2>
+<p>The architecture can begin with practical defaults: a single user, Python and PyTorch workloads, one Linux compute worker, one feasible paper, local artifact storage, and explicit GPU and model-call limits. These are proposed defaults, not assumptions about the user's existing hardware.</p>
+<p>Before provisioning compute, choose the first paper, available GPU or CPU, LLM provider access, maximum spend, and whether the first task is Run, Retrain, or Reimplement. Before external publication, choose the repository destination and visibility. These decisions affect execution configuration rather than the overall feedback architecture.</p>
+<p>The first implementation milestone is a demonstrable feedback loop: start a small experiment, receive a human correction, revise the saved plan, rerun only affected work, and show the corrected result with evidence.</p>
+<h2 id="13-research-references">13 Research references</h2>
+<p>Sources were consulted for the architecture proposal on 24 October 2026. Framework behavior should be verified against the pinned version during implementation. The feature choices, schemas, roadmap, and scenarios in this document are proposed application design.</p>
+<ul><li><a href="https://docs.langchain.com/oss/python/langgraph/persistence">LangGraph persistence</a> — durable workflow state and stores.</li>
+<li><a href="https://docs.langchain.com/oss/python/langgraph/interrupts">LangGraph interrupts</a> — human decision points, resumption and replay behavior.</li>
+<li><a href="https://docs.langchain.com/oss/python/deepagents/overview">Deep Agents overview</a> — agent tools, context management and delegation.</li>
+<li><a href="https://docs.langchain.com/oss/python/deepagents/human-in-the-loop">Deep Agents human in the loop</a> — tool approval configuration.</li>
+<li><a href="https://docs.langchain.com/oss/python/deepagents/async-subagents">Deep Agents async subagents</a> — background tasks and steering.</li>
+<li><a href="https://mlflow.org/docs/latest/tracking/">MLflow tracking</a> — experiment metadata, metrics and artifacts.</li>
+<li><a href="https://arxiv.org/abs/2609.28850">RECLAIM</a> — reproduction modes and evaluation limitations.</li>
+<li><a href="https://pub.sakana.ai/agentic-scientist/">The Agentic Scientist</a> — executable research tasks and evidence-linked reporting.</li>
+<li><a href="https://www.anthropic.com/engineering/multi-agent-research-system">Multi-agent research systems</a> — delegation and coordination tradeoffs.</li>
+<li><a href="https://www.anthropic.com/research/effective-context-engineering-for-ai-agents">Context engineering</a> — focused context and persistent notes.</li>
+<li><a href="https://www.anthropic.com/research/demystifying-evals-for-ai-agents">Agent evaluation guidance</a> — outcome-based agent evaluation.</li>
+<li><a href="https://github.com/Kaggle/kaggle-cli/blob/main/docs/kernels.md">Kaggle CLI kernels</a> — submission, status and output retrieval.</li>
+<li><a href="https://developers.google.com/colab/api/reference/rest">Google Colab API</a> — current API availability.</li>
+<li><a href="https://research.google.com/colaboratory/faq.html">Google Colab FAQ</a> — runtime and usage limits.</li>
+<li><a href="https://code.visualstudio.com/docs/remote/remote-overview">VS Code remote development</a> — remote coding workflows.</li></ul>
+<p>The product workflow also incorporates the nine-step research-paper reproduction guide supplied by the project owner: find, read, create, plan, implement, reproduce, review, extend, and publish.</p>
+<footer>PaperLab implementation plan · 24 October 2026 · Version 1.0</footer>
+</main>
+</div>
+</body>
+</html>

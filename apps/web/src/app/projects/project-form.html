@@ -1,0 +1,252 @@
+<a class="back-link" [routerLink]="id ? ['/projects', id] : ['/projects']"
+  >← {{ id ? 'Back to project' : 'All projects' }}</a
+>
+<div class="page-heading compact">
+  <div>
+    <p class="eyebrow">Project setup</p>
+    <h1>{{ id ? 'Revise your setup' : 'Start a new project' }}</h1>
+    <p class="lede">
+      {{
+        id
+          ? 'Record what changed and why. Earlier revisions stay in your history.'
+          : 'Choose a paper, a result, and the boundaries for your work.'
+      }}
+    </p>
+  </div>
+</div>
+@if (loading()) {
+  <div class="loading-state" role="status">Loading the current setup…</div>
+}
+@if (error()) {
+  <div class="error-message" role="alert">
+    <p>{{ error() }}</p>
+    @if (conflict()) {
+      <button class="button secondary" (click)="reload()">Reload latest setup</button
+      ><small>This replaces the unsaved form with the latest revision.</small>
+    } @else if (id && !revision()) {
+      <button class="button secondary" (click)="reload()">Try again</button>
+    }
+  </div>
+}
+@if (!loading() && (!id || revision())) {
+  <form [formGroup]="form" (ngSubmit)="save()" class="setup-form">
+    <fieldset [disabled]="saving()">
+      <section class="form-section">
+        <div class="form-section-heading">
+          <span class="section-number">01</span>
+          <div>
+            <h2>The paper and target</h2>
+            <p>Focus on one result you can check against the paper.</p>
+          </div>
+          @if (!id) {
+            <button type="button" class="text-button" (click)="sample()">Use sample setup</button>
+          }
+        </div>
+        <div class="field">
+          <label for="name">Project name</label
+          ><input
+            id="name"
+            formControlName="name"
+            placeholder="e.g. ResNet on CIFAR-10"
+            maxlength="120"
+            [attr.aria-invalid]="invalid('name')"
+          />
+          @if (invalid('name')) {
+            <small class="field-error">Enter a project name.</small>
+          }
+        </div>
+        <div class="field">
+          <label for="paper_url">Paper URL</label
+          ><input
+            id="paper_url"
+            formControlName="paper_url"
+            type="url"
+            placeholder="https://arxiv.org/abs/..."
+            maxlength="2048"
+            [attr.aria-invalid]="invalid('paper_url')"
+          /><small>A link to the paper. Reading and PDF upload will be added next.</small>
+          @if (invalid('paper_url')) {
+            <small class="field-error">Enter a valid http or https URL.</small>
+          }
+        </div>
+        <div class="field">
+          <label for="target_result">Target result</label
+          ><textarea
+            id="target_result"
+            formControlName="target_result"
+            rows="3"
+            maxlength="1000"
+            placeholder="Which table, figure, or experiment do you want to reproduce?"
+            [attr.aria-invalid]="invalid('target_result')"
+          ></textarea>
+          @if (invalid('target_result')) {
+            <small class="field-error">Describe the target in 3–1,000 characters.</small>
+          }
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="dataset">Dataset</label
+            ><input
+              id="dataset"
+              formControlName="dataset"
+              placeholder="e.g. CIFAR-10, official split"
+              maxlength="200"
+              [attr.aria-invalid]="invalid('dataset')"
+            />
+            @if (invalid('dataset')) {
+              <small class="field-error">Enter the dataset to use.</small>
+            }
+          </div>
+          <div class="field">
+            <label for="metric">Evaluation metric</label
+            ><input
+              id="metric"
+              formControlName="metric"
+              placeholder="e.g. macro F1"
+              maxlength="80"
+              [attr.aria-invalid]="invalid('metric')"
+            />
+            @if (invalid('metric')) {
+              <small class="field-error">Enter the metric to compare.</small>
+            }
+          </div>
+        </div>
+        <div class="field">
+          <label for="reproduction_mode">Reproduction approach</label
+          ><select id="reproduction_mode" formControlName="reproduction_mode">
+            <option value="run">Run released code and weights</option>
+            <option value="retrain">Retrain the authors’ code</option>
+            <option value="reimplement">Reimplement from the paper</option></select
+          ><small>Choose based on what the authors released and what you want to learn.</small>
+        </div>
+      </section>
+      <section class="form-section">
+        <div class="form-section-heading">
+          <span class="section-number">02</span>
+          <div>
+            <h2>How you want to work</h2>
+            <p>You can revise these preferences as the project develops.</p>
+          </div>
+        </div>
+        <fieldset class="mode-options">
+          <legend>Operating mode</legend>
+          <label class="mode-card" [class.selected]="form.controls.control_mode.value === 'guided'"
+            ><input type="radio" formControlName="control_mode" value="guided" /><span
+              ><strong>Guided</strong
+              ><small>Review the plan and major research decisions.</small></span
+            ></label
+          >
+          <label
+            class="mode-card"
+            [class.selected]="form.controls.control_mode.value === 'autonomous'"
+            ><input type="radio" formControlName="control_mode" value="autonomous" /><span
+              ><strong>Autonomous within limits</strong
+              ><small>Allow routine work within the scope and budget.</small></span
+            ></label
+          >
+        </fieldset>
+        <label class="learning-option"
+          ><input type="checkbox" formControlName="learning_mode" /><span
+            ><strong>Include learning support</strong
+            ><small
+              >Explain the method, code, and experiment choices. Works with either mode.</small
+            ></span
+          ></label
+        >
+      </section>
+      <section class="form-section">
+        <div class="form-section-heading">
+          <span class="section-number">03</span>
+          <div>
+            <h2>Resources and limits</h2>
+            <p>Set the limits that future experiments must respect.</p>
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="max_gpu_hours">GPU-hour limit</label
+            ><input
+              id="max_gpu_hours"
+              type="number"
+              formControlName="max_gpu_hours"
+              min="0"
+              max="10000"
+              step="0.25"
+              [attr.aria-invalid]="invalid('max_gpu_hours')"
+            /><small>Set 0 for CPU-only work.</small>
+            @if (invalid('max_gpu_hours')) {
+              <small class="field-error">Enter a value from 0 to 10,000.</small>
+            }
+          </div>
+          <div class="field">
+            <label for="max_llm_cost_usd">Model budget (USD)</label
+            ><input
+              id="max_llm_cost_usd"
+              type="number"
+              formControlName="max_llm_cost_usd"
+              min="0"
+              max="100000"
+              step="0.01"
+              [attr.aria-invalid]="invalid('max_llm_cost_usd')"
+            /><small>Separate from the cost of compute.</small>
+            @if (invalid('max_llm_cost_usd')) {
+              <small class="field-error">Enter a value from 0 to 100,000.</small>
+            }
+          </div>
+        </div>
+        <div class="field">
+          <label for="hardware">Available hardware</label
+          ><input
+            id="hardware"
+            formControlName="hardware"
+            placeholder="e.g. Local GPU with 8 GB VRAM, or To be confirmed"
+            maxlength="200"
+            [attr.aria-invalid]="invalid('hardware')"
+          />
+          @if (invalid('hardware')) {
+            <small class="field-error">Describe the hardware or enter “To be confirmed”.</small>
+          }
+        </div>
+      </section>
+      @if (id) {
+        <section class="form-section">
+          <div class="form-section-heading">
+            <span class="section-number">04</span>
+            <div>
+              <h2>Explain your change</h2>
+              <p>
+                Saving creates revision {{ revision() + 1 }}. Revision {{ revision() }} stays
+                available.
+              </p>
+            </div>
+          </div>
+          <div class="field">
+            <label for="note">Reason for the revision</label
+            ><textarea
+              id="note"
+              formControlName="note"
+              rows="3"
+              maxlength="2000"
+              placeholder="e.g. The paper specifies macro F1, so I corrected the metric."
+              [attr.aria-invalid]="invalid('note')"
+            ></textarea>
+            @if (invalid('note')) {
+              <small class="field-error">Explain the change in at least 3 characters.</small>
+            }
+          </div>
+        </section>
+      }
+      <div class="form-footer">
+        <p>Saving records a draft setup.<br />No model calls or training jobs start yet.</p>
+        <div class="form-actions">
+          <a class="button secondary" [routerLink]="id ? ['/projects', id] : ['/projects']"
+            >Cancel</a
+          ><button class="button primary" type="submit" [disabled]="saving() || conflict()">
+            {{ saving() ? 'Saving…' : id ? 'Save revision' : 'Create project' }}
+            <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+}

@@ -1,0 +1,123 @@
+<a class="back-link" routerLink="/projects">← All projects</a>
+@if (loading()) {
+  <div class="loading-state" role="status">Loading project…</div>
+}
+@if (error()) {
+  <div class="error-message" role="alert">
+    <p>{{ error() }}</p>
+    <button class="button secondary" (click)="load()">Try again</button>
+  </div>
+}
+@if (project(); as p) {
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">Project overview <span class="badge">Draft</span></p>
+      <h1>{{ p.setup.name }}</h1>
+      <p class="lede">Revision {{ p.revision }} · Updated {{ p.updated_at | date: 'medium' }}</p>
+    </div>
+    <a class="button primary" [routerLink]="['/projects', p.id, 'edit']"
+      >Revise setup <span aria-hidden="true">↗</span></a
+    >
+  </div>
+  <div class="milestone-note">
+    <span class="accent-label">SETUP SAVED</span>
+    <p>
+      Your target and limits are recorded. No paper analysis, model calls, or experiments have
+      started.
+    </p>
+  </div>
+  <div class="detail-grid">
+    <section class="panel target-panel">
+      <div class="section-heading">
+        <h2>Reproduction target</h2>
+        <span class="document-icon" aria-hidden="true">▤</span>
+      </div>
+      <p class="target-description">{{ p.setup.target_result }}</p>
+      <dl class="data-grid">
+        <div>
+          <dt>Dataset</dt>
+          <dd>{{ p.setup.dataset }}</dd>
+        </div>
+        <div>
+          <dt>Evaluation metric</dt>
+          <dd>{{ p.setup.metric }}</dd>
+        </div>
+        <div>
+          <dt>Approach</dt>
+          <dd>{{ format(p.setup.reproduction_mode) }}</dd>
+        </div>
+        <div>
+          <dt>Hardware</dt>
+          <dd>{{ p.setup.hardware }}</dd>
+        </div>
+      </dl>
+      <a class="paper-link" [href]="p.setup.paper_url" target="_blank" rel="noopener noreferrer"
+        >Open original paper <span aria-hidden="true">↗</span></a
+      >
+    </section>
+    <section class="panel preferences-panel">
+      <h2>Your preferences</h2>
+      <dl class="stacked-data">
+        <div>
+          <dt>Operating mode</dt>
+          <dd>{{ format(p.setup.control_mode) }}</dd>
+        </div>
+        <div>
+          <dt>Learning support</dt>
+          <dd>{{ p.setup.learning_mode ? 'Included' : 'Off' }}</dd>
+        </div>
+        <div>
+          <dt>GPU-hour limit</dt>
+          <dd>{{ p.setup.max_gpu_hours | number: '1.0-2' }} hours</dd>
+        </div>
+        <div>
+          <dt>Model budget</dt>
+          <dd>{{ p.setup.max_llm_cost_usd | currency: 'USD' : 'symbol' : '1.2-2' }}</dd>
+        </div>
+      </dl>
+      <p class="quiet-note">Limits are recorded for future execution.</p>
+    </section>
+  </div>
+  <section class="panel history-panel">
+    <div class="section-heading">
+      <div>
+        <h2>Revision history</h2>
+        <p class="muted">A record of your decisions, with the previous setup preserved.</p>
+      </div>
+      <span class="count">{{ history().length }}</span>
+    </div>
+    <ol class="revision-list">
+      @for (entry of history(); track entry.revision; let i = $index) {
+        <li>
+          <span class="revision-marker" aria-hidden="true">{{ entry.revision }}</span>
+          <div class="revision-content">
+            <div class="revision-top">
+              <strong>Revision {{ entry.revision }}</strong>
+              @if (entry.revision === p.revision) {
+                <span class="badge">Current</span>
+              }
+              <time>{{ entry.created_at | date: 'medium' }}</time>
+            </div>
+            <p class="revision-note">{{ entry.note }}</p>
+            <div class="change-tags">
+              @for (change of changes(i); track change) {
+                <span>{{ change }}</span>
+              }
+            </div>
+            <details>
+              <summary>View saved setup</summary>
+              <dl class="revision-snapshot">
+                @for (key of keys; track key) {
+                  <div>
+                    <dt>{{ labels[key] }}</dt>
+                    <dd>{{ format(entry.setup[key]) }}</dd>
+                  </div>
+                }
+              </dl>
+            </details>
+          </div>
+        </li>
+      }
+    </ol>
+  </section>
+}

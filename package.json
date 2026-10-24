@@ -1,0 +1,10 @@
+{
+  "name": "paperlab-workspace",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.cjs",
+    "build": "npm --prefix apps/web run build",
+    "test:ui": "npm --prefix apps/web run test:e2e",
+    "plan": "node build_plan.cjs"
+  }
+}

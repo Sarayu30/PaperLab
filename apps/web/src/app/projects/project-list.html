@@ -1,0 +1,84 @@
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Your research</p>
+    <h1>Projects</h1>
+    <p class="lede">Start with a paper. Give your experiment a clear target.</p>
+  </div>
+  <a class="button primary" routerLink="/projects/new"
+    ><span aria-hidden="true">+</span> New project</a
+  >
+</div>
+<div class="milestone-note">
+  <span class="accent-label">01 / PROJECT SETUP</span>
+  <p>
+    Define your target, choose how you want to work, and record your limits. Paper analysis and
+    experiments come next.
+  </p>
+</div>
+@if (error()) {
+  <div class="error-message" role="alert">
+    <p>{{ error() }}</p>
+    <button class="button secondary" (click)="load()">Try again</button>
+  </div>
+}
+@if (loading() && !projects().length) {
+  <div class="loading-state" role="status">Loading your projects…</div>
+}
+@if (!loading() && !error() && !projects().length) {
+  <section class="empty-state">
+    <div class="paper-illustration" aria-hidden="true">
+      <div class="paper-sheet">
+        <span class="paper-kicker">RESEARCH NOTES</span><span class="paper-line wide"></span
+        ><span class="paper-line"></span><span class="paper-line short"></span>
+        <div class="paper-chart"><i></i><i></i><i></i><i></i><i></i></div>
+        <span class="paper-stamp">01</span>
+      </div>
+    </div>
+    <p class="eyebrow">A place to begin</p>
+    <h2>Your first paper starts here.</h2>
+    <p>
+      Choose a result you want to reproduce.<br />Keep your plan, decisions, and revisions together.
+    </p>
+    <a class="button primary" routerLink="/projects/new"
+      >Create your first project <span aria-hidden="true">↗</span></a
+    ><span class="quiet-note">No API key or GPU needed for setup.</span>
+  </section>
+}
+@if (projects().length) {
+  <div class="section-heading">
+    <h2>
+      Your projects <span class="count">{{ projects().length }}</span>
+    </h2>
+    <span class="muted">Newest first</span>
+  </div>
+  <div class="project-grid">
+    @for (project of projects(); track project.id) {
+      <a class="project-card" [routerLink]="['/projects', project.id]">
+        <div class="card-top">
+          <span class="document-icon" aria-hidden="true">▤</span><span class="badge">Draft</span>
+        </div>
+        <h3>{{ project.setup.name }}</h3>
+        <p class="target-preview">{{ project.setup.target_result }}</p>
+        <div class="card-tags">
+          <span>{{ project.setup.reproduction_mode }}</span
+          ><span>{{
+            project.setup.control_mode === 'guided' ? 'Guided' : 'Autonomous within limits'
+          }}</span>
+          @if (project.setup.learning_mode) {
+            <span>Learning</span>
+          }
+        </div>
+        <div class="card-bottom">
+          <span
+            >Revision {{ project.revision }} · {{ project.created_at | date: 'mediumDate' }}</span
+          ><span aria-hidden="true">↗</span>
+        </div>
+      </a>
+    }
+  </div>
+  @if (hasMore()) {
+    <button class="button secondary load-more" [disabled]="loading()" (click)="load(true)">
+      {{ loading() ? 'Loading…' : 'Load more projects' }}
+    </button>
+  }
+}

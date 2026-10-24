@@ -5,3 +5,4 @@
 - If a commit or push fails, report the exact blocker and retain the local work. Do not claim a change is on GitHub until the push succeeds.
 - The implementation plan is maintained in `PaperLab_Implementation_Plan.md`. Regenerate `PaperLab_Implementation_Plan.html` with `node build_plan.cjs` after editing the Markdown, and commit the source and regenerated document together.
 - After each important feature is complete, remind the user to test it and give concrete steps and expected results. Run the appropriate automated checks before that reminder.
+- Use Angular with TypeScript for the web UI. The user explicitly selected Angular instead of React or Next.js. Keep the Python FastAPI backend.

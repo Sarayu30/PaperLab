@@ -110,7 +110,7 @@ Shared storage
 
 | Component | Proposed implementation | Reason |
 | --- | --- | --- |
-| User interface | React with Next.js | Workflow, artifact review, feedback, experiment comparison |
+| User interface | Angular with TypeScript | Workflow, artifact review, feedback, experiment comparison; typed reactive forms and signals for local view state |
 | API | Python with FastAPI | Typed project endpoints and Python ML integration |
 | Workflow | LangGraph with PostgreSQL checkpoints | Resumable stages and explicit routing |
 | Reasoning tasks | Deep Agents with pinned dependencies | Tools, filesystem context, focused delegation and steering |

@@ -138,7 +138,7 @@ def create_app(url: str | None = None) -> FastAPI:
                 )
             previous = session.get(ContractRevision, (str(project_id), request.expected_revision))
             payload = request.setup.model_dump(mode="json")
-            if previous.setup == payload:
+            if ProjectSetup.model_validate(previous.setup).model_dump(mode="json") == payload:
                 raise HTTPException(
                     422, "Change at least one setup field before saving a revision."
                 )

@@ -1,7 +1,7 @@
 ﻿<a class="skip-link" href="#main-content">Skip to content</a>
-<div class="workspace">
+<div class="workspace" [class.landing-shell]="isLanding()">
   <header class="masthead">
-    <a class="brand" routerLink="/projects" aria-label="PaperLab home"
+    <a class="brand" routerLink="/" aria-label="PaperLab home"
       ><span class="brand-symbol" aria-hidden="true">[p.]</span>PaperLab<span class="brand-caption"
         >A REPRODUCTION NOTEBOOK</span
       ></a
@@ -11,7 +11,10 @@
         >Your notebook <span aria-hidden="true">↗</span></a
       >
     </nav>
-    <span class="local-badge"><span class="status-dot"></span> Local notebook</span>
+    <span class="local-badge"
+      ><span class="status-dot"></span>
+      {{ isLanding() ? 'Early access / local edition' : 'Local notebook' }}</span
+    >
   </header>
   <main id="main-content" tabindex="-1"><router-outlet /></main>
   <footer class="workspace-footer">

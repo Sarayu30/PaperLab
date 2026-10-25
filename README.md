@@ -31,6 +31,12 @@ FastAPI together. Ctrl+C stops both. Projects are stored in `.data/paperlab.db` 
 The Angular development proxy forwards `/api` requests to FastAPI on port 8000.
 Override ports with `PAPERLAB_WEB_PORT` and `PAPERLAB_API_PORT` when needed.
 
+The home route is PaperLab's public introduction: a field-guide theme, an illustrated research
+workflow, and interactive workload/feedback examples. The original `[p.] PaperLab` wordmark is
+retained. Examples use temporary component state and never modify real projects. Available
+features and planned agents, execution and integrations are labeled separately. **Your notebook**
+opens `/projects`; **Start an experiment** opens `/projects/new`.
+
 ## Local API
 
 Requirements: [uv](https://docs.astral.sh/uv/) and Python 3.12 (uv can install Python).

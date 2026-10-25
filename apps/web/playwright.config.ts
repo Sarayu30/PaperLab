@@ -9,7 +9,10 @@ process.env['PLAYWRIGHT_BROWSERS_PATH'] = path.join(root, '.cache/ms-playwright'
 export default defineConfig({
   testDir: './e2e',
   workers: 1,
-  use: { baseURL: 'http://127.0.0.1:4201', trace: 'retain-on-failure' },
+  use: {
+    baseURL: process.env['PAPERLAB_E2E_BASE_URL'] || 'http://127.0.0.1:4201',
+    trace: 'retain-on-failure',
+  },
   // Opt in only with dedicated test servers/database, never a real workspace database.
   webServer:
     process.env['PAPERLAB_E2E_EXTERNAL_SERVER'] === '1'

@@ -1,7 +1,12 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'projects' },
+  {
+    path: '',
+    pathMatch: 'full',
+    title: 'PaperLab — From paper to experiment',
+    loadComponent: () => import('./landing/landing').then((m) => m.Landing),
+  },
   {
     path: 'projects',
     title: 'Projects · PaperLab',

@@ -1,61 +1,69 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+﻿import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ProjectApi, Project, errorMessage } from '../projects/project-api';
+import { workloads, resourceCatalog, ResourcePlan } from '../projects/resources';
 
 @Component({
-  imports: [RouterLink],
+  imports: [RouterLink, DatePipe],
   templateUrl: './landing.html',
   styleUrl: './landing.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Landing {
-  readonly examples = [
+  private readonly api = inject(ProjectApi);
+  readonly projects = signal<Project[]>([]);
+  readonly loading = signal(true);
+  readonly error = signal('');
+  readonly workloads = workloads;
+  readonly catalog = resourceCatalog;
+  readonly workloadKeys = Object.keys(workloads) as ResourcePlan['workload'][];
+  readonly selectedWorkload = signal<ResourcePlan['workload']>('cpu');
+  readonly selectedLayer = signal(0);
+  readonly layers = [
     {
-      name: 'On your laptop',
-      tag: 'CPU / CLASSICAL ML',
-      title: 'Start small. Still ask a real question.',
+      name: 'The interface',
+      technology: 'Angular / TypeScript',
+      title: 'A brief you can keep changing.',
       description:
-        'A CPU experiment has different needs from a training run. Record the resources that matter to the method.',
-      fields: [
-        ['CPU cores', '4 available'],
-        ['System RAM', '16 GB'],
-        ['Dataset access', 'Public dataset'],
-      ],
-      note: 'No GPU requirement added.',
+        'Typed forms collect the paper, target, working mode and resources. The browser sends your expected revision with an edit so the API can detect conflicts.',
+      artifact: 'apps/web/src/app/projects/project-api.ts',
+      code: 'this.http.post<Project>(`/api/projects/${id}/revisions`, {\n  expected_revision, setup, note\n})',
+      link: 'apps/web/src/app/projects/project-api.ts',
     },
     {
-      name: 'Training a model',
-      tag: 'TRAINING / FINE-TUNING',
-      title: 'Make the compute part of the plan.',
+      name: 'The decision boundary',
+      technology: 'Python / FastAPI',
+      title: 'Two edits. Only one advances the revision.',
       description:
-        'Separate accelerator memory, total GPU time and checkpoint storage. Unknown hardware can stay unknown.',
-      fields: [
-        ['Accelerator memory', 'To be confirmed'],
-        ['GPU time ceiling', '2 GPU-hours'],
-        ['Checkpoint storage', '20 GB'],
-      ],
-      note: 'Availability is verified before execution — planned.',
+        'An atomic update checks the current revision before accepting a change. A stale editor receives a conflict instead of silently overwriting someone else’s work.',
+      artifact: 'services/api/paperlab_api/main.py',
+      code: 'update(Project)\n.where(Project.id == str(project_id),\n       Project.revision == request.expected_revision)\n.values(revision=next_revision, updated_at=now)',
+      link: 'services/api/paperlab_api/main.py',
     },
     {
-      name: 'Using a model API',
-      tag: 'HOSTED EVALUATION',
-      title: 'A model call is an experiment, too.',
+      name: 'The record',
+      technology: 'SQLAlchemy / SQLite locally',
+      title: 'The previous setup remains part of the story.',
       description:
-        'Track experiment spend and provider quotas independently. The assistant budget belongs to a different line.',
-      fields: [
-        ['Experiment API budget', '$10 ceiling'],
-        ['Request quota', 'To be confirmed'],
-        ['Assistant budget', 'Not specified'],
-      ],
-      note: 'No local accelerator assumed.',
+        'Each accepted change stores a new setup snapshot and the reason for the revision. Existing revisions remain available after a restart.',
+      artifact: 'services/api/paperlab_api/models.py',
+      code: 'class ContractRevision(Base):\n    __tablename__ = "contract_revisions"\n\n    setup: Mapped[dict] = mapped_column(JSON, nullable=False)\n    note: Mapped[str] = mapped_column(Text, nullable=False)',
+      link: 'services/api/paperlab_api/models.py',
     },
   ];
-  readonly selected = signal(0);
-  readonly feedbackApplied = signal(false);
-  select(index: number) {
-    this.selected.set(index);
-    this.feedbackApplied.set(false);
+  constructor() {
+    void this.load();
   }
-  example() {
-    return this.examples[this.selected()];
+  async load() {
+    this.loading.set(true);
+    this.error.set('');
+    try {
+      this.projects.set((await this.api.list()).slice(0, 3));
+    } catch (error) {
+      this.error.set(errorMessage(error));
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

@@ -1,14 +1,11 @@
 ﻿<div class="notebook-heading">
   <div>
-    <p class="eyebrow">Personal research notebook</p>
-    <h1>Your research,<br /><em>in progress.</em></h1>
-    <p class="lede">
-      The papers you choose. The claims you test.<br />A record of what you change along the way.
-    </p>
+    <p class="eyebrow">Research workspace</p>
+    <h1>Your experiments.</h1>
+    <p class="lede">Your papers, targets and decisions. Open a brief to continue the work.</p>
   </div>
   <div class="notebook-action">
-    <span class="index-mark" aria-hidden="true">P / L</span
-    ><a class="button primary" routerLink="/projects/new">+ New project</a>
+    <a class="button primary" routerLink="/projects/new">+ New project</a>
     <p>Start with one result from one paper.</p>
   </div>
 </div>
@@ -23,10 +20,6 @@
 }
 @if (!loading() && !error() && !projects().length) {
   <section class="empty-notebook">
-    <div class="notebook-margin">
-      <span class="eyebrow">Entry 001</span><span class="margin-rule"></span
-      ><span class="vertical-note">An experiment begins with a question.</span>
-    </div>
     <div class="empty-body">
       <p class="eyebrow">No experiments recorded</p>
       <h2>Which result would<br />you like to check?</h2>
@@ -39,7 +32,7 @@
       >
     </div>
     <div class="entry-outline">
-      <span class="hand-note">Notes before code</span>
+      <h3>What goes into a brief</h3>
       <ol>
         <li><span>01</span> The paper & the claim</li>
         <li><span>02</span> Your role in the work</li>

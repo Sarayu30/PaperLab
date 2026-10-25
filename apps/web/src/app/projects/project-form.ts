@@ -28,7 +28,8 @@ export class ProjectForm {
   private readonly api = inject(ProjectApi);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder).nonNullable;
-  readonly id = inject(ActivatedRoute).snapshot.paramMap.get('id');
+  private readonly route = inject(ActivatedRoute);
+  readonly id = this.route.snapshot.paramMap.get('id');
   readonly loading = signal(false);
   readonly saving = signal(false);
   readonly error = signal('');
@@ -62,6 +63,10 @@ export class ProjectForm {
   });
 
   constructor() {
+    const requested = this.route.snapshot.queryParamMap.get('workload');
+    if (!this.id && requested && Object.hasOwn(workloads, requested)) {
+      this.form.controls.workload.setValue(requested as ResourcePlan['workload']);
+    }
     if (this.id) {
       this.form.controls.note.setValidators(requiredText(2000, 3));
       void this.reload();

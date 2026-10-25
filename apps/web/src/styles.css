@@ -3,11 +3,6 @@
   color: #292b29;
   background: #f8f7f3;
   font-synthesis: none;
-  --ink: #292b29;
-  --muted: #686b65;
-  --line: #d9d9d0;
-  --paper: #fffefa;
-  --accent: #b64b2d;
   --soft: #efeee6;
 }
 * {
@@ -49,11 +44,9 @@ summary {
   padding: 0 5%;
 }
 .masthead {
-  height: 100px;
   border-bottom: 1px solid var(--ink);
   display: flex;
   align-items: center;
-  gap: 44px;
 }
 .brand {
   display: flex;
@@ -70,22 +63,10 @@ summary {
   font-weight: 400;
   color: var(--accent);
 }
-.brand-caption {
-  font:
-    9px/1.5 'Courier New',
-    monospace;
-  letter-spacing: 1px;
-  max-width: 120px;
-  margin-left: 16px;
-  border-left: 1px solid var(--line);
-  padding-left: 18px;
-}
 .masthead nav {
   margin-left: auto;
 }
 .notebook-link {
-  text-decoration: none;
-  font-size: 12px;
   border-bottom: 1px solid var(--ink);
   padding-bottom: 6px;
 }
@@ -116,9 +97,6 @@ main {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  font:
-    10px 'Courier New',
-    monospace;
   color: var(--muted);
 }
 h1,
@@ -132,7 +110,6 @@ h1 {
     44px/1.13 Georgia,
     'Times New Roman',
     serif;
-  letter-spacing: -1.4px;
   margin-bottom: 14px;
   overflow-wrap: anywhere;
 }
@@ -140,28 +117,19 @@ h2 {
   font:
     26px/1.25 Georgia,
     serif;
-  letter-spacing: -0.6px;
   margin-bottom: 0;
 }
 h3 {
   font:
     25px/1.25 Georgia,
     serif;
-  letter-spacing: -0.5px;
   margin: 10px 0;
   overflow-wrap: anywhere;
 }
 .eyebrow {
-  font:
-    10px/1.5 'Courier New',
-    monospace;
-  text-transform: uppercase;
-  letter-spacing: 1.3px;
-  color: var(--muted);
   margin-bottom: 18px;
 }
 .lede {
-  font-size: 14px;
   line-height: 1.8;
   color: var(--muted);
   margin-bottom: 0;
@@ -171,9 +139,7 @@ h3 {
   align-items: center;
   justify-content: center;
   gap: 16px;
-  min-height: 44px;
   padding: 11px 20px;
-  font-size: 12px;
   font-weight: 600;
   border: 1px solid var(--ink);
   border-radius: 2px;
@@ -181,11 +147,7 @@ h3 {
   white-space: nowrap;
 }
 .primary {
-  background: var(--ink);
   color: #fffefa;
-}
-.primary:hover {
-  background: #484a42;
 }
 .secondary {
   background: transparent;
@@ -222,7 +184,6 @@ h3 {
 }
 .notebook-heading h1 {
   font-size: 64px;
-  letter-spacing: -2.5px;
 }
 .notebook-heading em {
   font-weight: 400;
@@ -232,15 +193,6 @@ h3 {
   text-align: right;
   padding-bottom: 5px;
 }
-.index-mark {
-  display: block;
-  font:
-    11px 'Courier New',
-    monospace;
-  letter-spacing: 5px;
-  color: var(--muted);
-  margin-bottom: 60px;
-}
 .notebook-action p {
   font-size: 11px;
   color: var(--muted);
@@ -248,46 +200,10 @@ h3 {
 }
 .empty-notebook {
   display: grid;
-  grid-template-columns: 100px 1.4fr 1fr;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-top: 3px solid var(--ink);
-  min-height: 350px;
-  box-shadow:
-    0 5px 0 -2px #f8f7f3,
-    0 6px 0 -2px #d9d9d0;
-}
-.notebook-margin {
-  padding: 30px 20px;
-  border-right: 1px solid #e3b7a8;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.notebook-margin .eyebrow {
-  font-size: 9px;
-  white-space: nowrap;
-  color: var(--accent);
-}
-.margin-rule {
-  height: 60px;
-  width: 1px;
-  background: var(--line);
-  margin: 5px 0 25px;
-}
-.vertical-note {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  font:
-    9px 'Courier New',
-    monospace;
-  color: var(--muted);
-}
-.empty-body {
-  padding: 40px;
 }
 .empty-body h2 {
-  font-size: 38px;
   line-height: 1.15;
 }
 .empty-body > p:not(.eyebrow) {
@@ -298,17 +214,7 @@ h3 {
 }
 .entry-outline {
   align-self: center;
-  padding: 35px;
   border-left: 1px solid var(--line);
-}
-.hand-note {
-  display: block;
-  font:
-    italic 21px Georgia,
-    serif;
-  color: var(--accent);
-  transform: rotate(-3deg);
-  margin-bottom: 30px;
 }
 .entry-outline ol {
   list-style: none;
@@ -317,7 +223,6 @@ h3 {
 }
 .entry-outline li {
   border-bottom: 1px solid var(--line);
-  font-size: 12px;
   padding: 15px 0;
 }
 .entry-outline li span {
@@ -328,9 +233,6 @@ h3 {
   margin-right: 12px;
 }
 .entry-outline p {
-  font:
-    10px/1.8 'Courier New',
-    monospace;
   color: var(--muted);
   margin: 24px 0 0;
 }
@@ -338,15 +240,11 @@ h3 {
   display: flex;
   gap: 18px;
   align-items: baseline;
-  font-size: 11px;
   line-height: 1.8;
   color: var(--muted);
   margin: 32px 0 0;
 }
 .note-mark {
-  font:
-    italic 17px Georgia,
-    serif;
   color: var(--accent);
 }
 .index-toolbar {
@@ -358,9 +256,6 @@ h3 {
   border-top: 1px solid var(--ink);
 }
 .count {
-  font:
-    10px 'Courier New',
-    monospace;
   background: #eee9d7;
   color: #696044;
   padding: 5px 8px;
@@ -397,11 +292,6 @@ h3 {
 .ledger-header {
   background: var(--soft);
   padding: 12px 18px;
-  font:
-    9px 'Courier New',
-    monospace;
-  text-transform: uppercase;
-  letter-spacing: 1px;
   color: var(--muted);
 }
 .project-row {
@@ -429,11 +319,6 @@ h3 {
   overflow-wrap: anywhere;
 }
 .badge {
-  font:
-    9px 'Courier New',
-    monospace;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
   padding: 4px 6px;
   background: #ede9d7;
   color: #72643d;
@@ -441,7 +326,6 @@ h3 {
   white-space: nowrap;
 }
 .target-preview {
-  font-size: 12px;
   line-height: 1.7;
   color: var(--muted);
   display: -webkit-box;
@@ -464,7 +348,6 @@ h3 {
 }
 .entry-method {
   padding-top: 28px;
-  font-size: 12px;
   line-height: 1.5;
 }
 .entry-method small {
@@ -506,9 +389,6 @@ h3 {
   text-underline-offset: 4px;
 }
 .last-entry > span:last-child {
-  font:
-    10px 'Courier New',
-    monospace;
   color: var(--muted);
   margin-left: auto;
 }
@@ -518,9 +398,6 @@ h3 {
 }
 .back-link {
   display: inline-block;
-  font:
-    11px 'Courier New',
-    monospace;
   text-decoration: none;
   color: var(--muted);
   margin-bottom: 30px;
@@ -565,9 +442,6 @@ fieldset {
   display: block;
 }
 .section-number {
-  font:
-    11px 'Courier New',
-    monospace;
   color: var(--accent);
   display: block;
   margin-bottom: 18px;
@@ -596,7 +470,6 @@ fieldset {
 .field label,
 legend,
 .resource-row label {
-  font-size: 12px;
   font-weight: 600;
 }
 .field input,
@@ -669,7 +542,6 @@ legend,
 .mode-card strong,
 .learning-option strong {
   display: block;
-  font-size: 12px;
 }
 .mode-card small,
 .learning-option small {
@@ -703,7 +575,6 @@ input[type='checkbox'] {
   color: var(--muted);
 }
 .resource-suggestions .eyebrow {
-  font-size: 9px;
   display: block;
   margin: 18px 0 10px;
 }
@@ -717,8 +588,6 @@ input[type='checkbox'] {
   padding: 8px 10px;
   border-radius: 2px;
   background: transparent;
-  font-size: 11px;
-  min-height: 34px;
 }
 .add-field:not(:disabled):hover {
   background: #eee9d7;
@@ -756,9 +625,6 @@ input[type='checkbox'] {
 }
 .resource-unit {
   display: block;
-  font:
-    9px 'Courier New',
-    monospace;
   color: var(--muted);
   margin-top: 7px;
 }
@@ -769,7 +635,6 @@ input[type='checkbox'] {
   background: transparent;
   color: var(--muted);
   padding: 10px 3px;
-  min-height: 38px;
 }
 .remove-field:hover {
   color: var(--accent);
@@ -814,9 +679,6 @@ summary:hover {
   margin-top: 16px;
 }
 .quiet-note {
-  font:
-    10px/1.8 'Courier New',
-    monospace;
   color: var(--muted);
   margin: 20px 0 0;
 }
@@ -847,14 +709,10 @@ summary:hover {
   margin-bottom: 30px;
 }
 .accent-label {
-  font:
-    9px 'Courier New',
-    monospace;
   white-space: nowrap;
   color: var(--accent);
 }
 .milestone-note p {
-  font-size: 11px;
   line-height: 1.8;
   color: var(--muted);
   margin: 0;
@@ -890,9 +748,6 @@ summary:hover {
   font-size: 23px;
 }
 .target-description {
-  font:
-    21px/1.65 Georgia,
-    serif;
   overflow-wrap: anywhere;
   margin: 20px 0 28px;
 }
@@ -905,9 +760,6 @@ summary:hover {
 .data-grid dt,
 .stacked-data dt,
 .revision-snapshot dt {
-  font:
-    10px 'Courier New',
-    monospace;
   color: var(--muted);
   margin-bottom: 9px;
 }
@@ -1082,9 +934,6 @@ summary:hover {
   }
 }
 @media (max-width: 1050px) {
-  .brand-caption {
-    display: none;
-  }
   .ledger-header,
   .project-row {
     grid-template-columns: 35px minmax(0, 1fr) 150px 100px;
@@ -1124,10 +973,6 @@ summary:hover {
   .workspace {
     padding: 0 22px;
   }
-  .masthead {
-    height: 80px;
-    gap: 20px;
-  }
   .brand {
     font-size: 21px;
   }
@@ -1136,9 +981,6 @@ summary:hover {
   }
   .local-badge {
     display: none;
-  }
-  .notebook-link {
-    font-size: 11px;
   }
   .notebook-link span {
     margin-left: 8px;
@@ -1151,11 +993,7 @@ summary:hover {
     padding: 0 0 30px;
   }
   .notebook-heading h1 {
-    font-size: 44px;
     letter-spacing: -1.8px;
-  }
-  .notebook-action .index-mark {
-    margin-bottom: 30px;
   }
   .notebook-action p {
     display: none;
@@ -1169,32 +1007,6 @@ summary:hover {
   }
   .lede {
     font-size: 12px;
-  }
-  .empty-notebook {
-    grid-template-columns: 45px 1fr;
-  }
-  .notebook-margin {
-    padding: 25px 10px;
-    grid-row: span 2;
-  }
-  .notebook-margin .eyebrow {
-    writing-mode: vertical-rl;
-    margin: 0 0 12px;
-  }
-  .empty-body {
-    padding: 30px 24px;
-  }
-  .empty-body h2 {
-    font-size: 31px;
-  }
-  .entry-outline {
-    border-left: 0;
-    border-top: 1px solid var(--line);
-    padding: 25px;
-    margin: 0 24px 20px;
-  }
-  .entry-outline .hand-note {
-    margin-bottom: 12px;
   }
   .entry-outline p {
     margin-top: 16px;
@@ -1262,7 +1074,6 @@ summary:hover {
   .workspace-footer {
     flex-direction: column;
     gap: 10px;
-    font-size: 9px;
   }
   .workspace-note {
     gap: 12px;
@@ -1382,9 +1193,6 @@ summary:hover {
   .notebook-action {
     padding: 0;
   }
-  .notebook-action .index-mark {
-    display: none;
-  }
   .notebook-heading h1 {
     font-size: 46px;
   }
@@ -1407,7 +1215,6 @@ summary:hover {
 .landing-shell .masthead {
   margin: 0;
   padding: 0 5%;
-  border-bottom: 0;
   background: #f8f7f3;
 }
 .landing-shell main {
@@ -1418,7 +1225,6 @@ summary:hover {
   margin: 0;
   padding: 26px 5%;
   background: #f8f7f3;
-  border-top: 0;
 }
 @media (max-width: 760px) {
   .landing-shell .masthead {
@@ -1426,5 +1232,373 @@ summary:hover {
   }
   .landing-shell .workspace-footer {
     padding: 24px 6%;
+  }
+}
+/* Shared workbench system: typography, spacing and interaction tokens. */
+:root {
+  --ink: #252925;
+  --muted: #64685f;
+  --line: #d7d8ce;
+  --paper: #faf9f5;
+  --accent: #b34427;
+  --space-unit: 4px;
+  --motion-fast: 150ms;
+}
+body {
+  background: #f8f7f3;
+}
+.masthead {
+  height: 90px;
+  gap: 28px;
+}
+.masthead nav {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+.notebook-link {
+  font-size: 13px;
+  border: 0;
+  padding: 9px 0;
+  text-decoration: none;
+}
+.notebook-link:hover {
+  color: var(--accent);
+}
+.brand,
+.brand-symbol {
+  letter-spacing: -1px;
+}
+.workspace-footer {
+  font:
+    12px/1.7 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.workspace-footer a {
+  text-underline-offset: 4px;
+}
+h1,
+h2,
+h3 {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-style: normal;
+  font-weight: 600;
+}
+h1 {
+  font-size: 38px;
+  letter-spacing: -1.4px;
+}
+h2 {
+  font-size: 24px;
+  letter-spacing: -0.6px;
+}
+h3 {
+  font-size: 22px;
+  letter-spacing: -0.4px;
+}
+.notebook-heading {
+  padding-top: 0;
+  padding-bottom: 30px;
+}
+.notebook-heading h1 {
+  font:
+    600 42px/1.15 'Segoe UI',
+    Arial,
+    sans-serif;
+  letter-spacing: -1.5px;
+}
+.eyebrow {
+  font:
+    600 12px/1.6 'Segoe UI',
+    Arial,
+    sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--accent);
+}
+.lede {
+  font-size: 14px;
+}
+.empty-notebook {
+  grid-template-columns: 1.2fr 1fr;
+  box-shadow: none;
+  border-top: 1px solid var(--line);
+  min-height: 0;
+}
+.empty-body {
+  padding: 30px;
+}
+.empty-body h2 {
+  font-size: 30px;
+  font-weight: 600;
+}
+.entry-outline {
+  padding: 30px;
+}
+.entry-outline h3 {
+  font-size: 16px;
+  margin: 0 0 16px;
+}
+.entry-outline li {
+  font-size: 13px;
+}
+.entry-outline p {
+  font:
+    12px/1.8 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.button {
+  font-size: 13px;
+  min-height: 46px;
+}
+.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.primary:hover {
+  background: #8e351e;
+}
+.project-row {
+  padding-top: 23px;
+  padding-bottom: 23px;
+}
+.paper-reference,
+.entry-number,
+.entry-date,
+.dataset-label {
+  font-size: 12px;
+}
+.entry-method {
+  font-size: 13px;
+}
+.entry-method small,
+.entry-date small {
+  font-size: 12px;
+}
+.ledger-header {
+  font:
+    12px 'Segoe UI',
+    Arial,
+    sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.target-preview {
+  font-size: 13px;
+}
+.search-field label,
+.search-field input {
+  font:
+    12px 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.badge {
+  font:
+    11px 'Segoe UI',
+    Arial,
+    sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.count {
+  font:
+    12px 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.last-entry > span:last-child {
+  font:
+    12px 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.workspace-note {
+  font-size: 12px;
+}
+.note-mark {
+  font:
+    600 12px 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.back-link {
+  font:
+    13px 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.form-section-heading h2 {
+  font:
+    600 23px/1.25 'Segoe UI',
+    Arial,
+    sans-serif;
+  letter-spacing: -0.5px;
+}
+.form-section-heading p,
+.form-section-heading .text-button {
+  font-size: 12px;
+}
+.section-number {
+  font:
+    12px 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.field label,
+legend,
+.resource-row label {
+  font-size: 13px;
+}
+.field small,
+.resource-row small,
+.mode-card small,
+.learning-option small {
+  font-size: 12px;
+}
+.mode-card strong,
+.learning-option strong {
+  font-size: 13px;
+}
+.resource-unit {
+  font:
+    12px 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.add-field {
+  font-size: 12px;
+  min-height: 40px;
+}
+.quiet-note {
+  font:
+    12px/1.8 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.resource-suggestions .eyebrow {
+  font-size: 12px;
+}
+.resource-suggestions > p,
+.platform-note,
+.no-requirements small,
+.form-footer p {
+  font-size: 12px;
+}
+.no-requirements p,
+summary {
+  font-size: 13px;
+}
+.remove-field {
+  min-height: 44px;
+}
+.target-description {
+  font:
+    18px/1.75 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.data-grid dt,
+.stacked-data dt,
+.revision-snapshot dt {
+  font:
+    12px 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.data-grid dd,
+.stacked-data dd,
+.revision-snapshot dd,
+.requirements-ledger dt {
+  font-size: 13px;
+}
+.revision-top time,
+.change-tags span {
+  font:
+    12px 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.revision-marker {
+  font-size: 13px;
+}
+.accent-label {
+  font:
+    600 12px 'Segoe UI',
+    Arial,
+    sans-serif;
+}
+.milestone-note p {
+  font-size: 12px;
+}
+.form-section,
+.panel {
+  scroll-margin-top: 20px;
+}
+.landing-shell .masthead {
+  border-bottom: 1px solid var(--line);
+}
+.landing-shell .workspace-footer {
+  border-top: 1px solid var(--line);
+}
+@media (max-width: 760px) {
+  .masthead {
+    height: auto;
+    min-height: 85px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 17px !important;
+    padding-bottom: 17px !important;
+  }
+  .masthead nav {
+    gap: 15px;
+  }
+  .notebook-link {
+    font-size: 12px;
+  }
+  .notebook-link span {
+    display: none;
+  }
+  .architecture-link {
+    display: none;
+  }
+  .notebook-heading h1 {
+    font-size: 34px;
+  }
+  .empty-notebook {
+    grid-template-columns: 1fr;
+  }
+  .empty-body {
+    padding: 24px;
+  }
+  .entry-outline {
+    padding: 24px;
+    margin: 0;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  .empty-body h2 {
+    font-size: 28px;
+  }
+  .form-section-heading h2 {
+    font-size: 23px;
+  }
+  .workspace-footer {
+    font-size: 12px;
+  }
+  .entry-date {
+    flex-wrap: wrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }

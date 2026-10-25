@@ -1,280 +1,272 @@
-<div class="landing">
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-grid"></div>
-    <div class="hero-top">
-      <span><i></i> THE RESEARCH DOESN’T END AT THE PDF.</span
-      ><span class="edition">FIELD NOTES / 001</span>
+﻿<div class="desk-home">
+  <section class="introduction" aria-labelledby="intro-title">
+    <div class="intro-index">
+      <span class="section-tag">Research workspace</span
+      ><span class="version-label">Local edition / 0.2</span>
     </div>
-    <div class="hero-layout">
-      <div class="hero-copy">
-        <h1 id="hero-title">Read the paper.<br />Question it.<br /><em>Make it run.</em></h1>
-        <p>
-          A workspace for turning machine learning papers into experiments you can understand,
-          revise, and reproduce.
-        </p>
-        <div class="hero-actions">
-          <a class="cta cta-light" routerLink="/projects/new"
-            >Start an experiment <span aria-hidden="true">↗</span></a
-          ><a class="hero-text-link" href="#inside"
-            >Explore the idea <span aria-hidden="true">↓</span></a
-          >
-        </div>
-        <p class="release-note">
-          <span class="release-dot"></span> Project briefs & revisions are live.<br /><span
-            >Agent orchestration and execution are on the roadmap.</span
-          >
-        </p>
-      </div>
-      <div
-        class="research-figure"
-        role="img"
-        aria-label="Illustrated workflow: a paper becomes a research brief, with method, resources and human feedback feeding into a future experiment."
-      >
-        <div class="figure-caption">
-          <span>FIG. 01 — THE REPRODUCTION LOOP</span><span>CONCEPT</span>
-        </div>
-        <div class="orbit orbit-one"></div>
-        <div class="orbit orbit-two"></div>
-        <svg class="figure-wires" viewBox="0 0 560 520" fill="none" aria-hidden="true">
-          <path
-            d="M120 150V238H280V300M280 238H451V160M280 380V438H448V260"
-            stroke="#82a398"
-            stroke-dasharray="4 7"
-          />
-          <path d="M100 370H192M360 335H475" stroke="#a4bc98" />
-          <circle cx="280" cy="238" r="5" fill="#e9b978" />
-          <path d="m468 330 7 5-7 5" stroke="#a4bc98" />
-        </svg>
-        <div class="source-paper">
-          <span class="paper-id">arXiv / research paper</span
-          ><strong>Deep Residual<br />Learning</strong><span class="paper-rule"></span
-          ><span class="paper-rule short"></span>
-          <div class="tiny-plot">
-            <span></span><span></span><span></span><span></span><span></span>
-          </div>
-          <span class="paper-bottom">METHOD · DATA · EVIDENCE</span>
-        </div>
-        <div class="margin-label">01 / understand<br /><span>One claim at a time.</span></div>
-        <div class="human-note">
-          <span class="note-pin"></span><small>HUMAN FEEDBACK</small>
-          <p>“Keep the baseline.<br />Change the metric.”</p>
-          <span>Revision, not restart. ↙</span>
-        </div>
-        <div class="experiment-node">
-          <div>
-            <span class="node-cross">✳</span><span>Experiment brief</span
-            ><span class="node-index">r.02</span>
-          </div>
-          <dl>
-            <div>
-              <dt>Target</dt>
-              <dd>One reported result</dd>
-            </div>
-            <div>
-              <dt>Resources</dt>
-              <dd>Defined by you</dd>
-            </div>
-            <div>
-              <dt>Decisions</dt>
-              <dd>Preserved</dd>
-            </div>
-          </dl>
-        </div>
-        <div class="output-label">
-          <span class="output-square"></span> EVIDENCE, NOT JUST CODE
-          <span class="planned-small">planned</span>
-        </div>
-        <span class="figure-coordinate">x: paper / y: possibility</span>
-      </div>
-    </div>
-    <div class="hero-bottom">
-      <span>Built around the scientific process</span>
+    <div class="intro-layout">
       <div>
-        <span>01 / Understand</span><span>02 / Implement</span><span>03 / Evaluate</span
-        ><span>04 / Question again</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="inside section-wrap" id="inside" aria-labelledby="inside-title">
-    <div class="section-label">
-      <span>01 / THE WORKSPACE</span><span>A LAB NOTEBOOK WITH A LONGER HORIZON.</span>
-    </div>
-    <div class="section-intro">
-      <h2 id="inside-title">Keep the curiosity.<br /><em>Give it a structure.</em></h2>
-      <p>
-        A good reproduction is a chain of decisions. PaperLab is being built to keep the paper, the
-        implementation, and your reasoning in the same conversation.
-      </p>
-    </div>
-    <div class="feature-spread">
-      <article class="live-feature">
-        <div class="feature-status">
-          <span class="status-live">AVAILABLE NOW</span><span>↗</span>
-        </div>
-        <span class="feature-number">[ 01 ]</span>
-        <h3>Your experiment.<br />Your working brief.</h3>
-        <p>
-          Choose a target result. Set how you want to work. Add only the resources your experiment
-          needs, and keep a history of every revision.
+        <h1 id="intro-title">Good research starts<br />with a better question<span>.</span></h1>
+        <p class="intro-description">
+          PaperLab is a working space for reproducing machine learning papers. Define the result you
+          want to check, make your constraints explicit, and keep the reasoning behind every change.
         </p>
-        <div class="brief-excerpt">
-          <span>RESEARCH QUESTION</span>
-          <p>Can I reproduce this result<br />under my constraints?</p>
-          <div><span>paper → target → requirements</span><span class="excerpt-cursor"></span></div>
+        <div class="intro-actions">
+          <a class="action primary-action" routerLink="/projects/new"
+            >Start a research brief <span aria-hidden="true">↗</span></a
+          ><a class="plain-link" routerLink="/projects"
+            >Explore your work <span aria-hidden="true">→</span></a
+          >
         </div>
-        <a routerLink="/projects" class="feature-link"
-          >Open your notebook <span aria-hidden="true">↗</span></a
-        >
-      </article>
-      <div class="future-features">
-        <article>
-          <span class="feature-number">02</span>
-          <div>
-            <div class="feature-title">
-              <h3>Agents with a research job.</h3>
-              <span class="status-planned">PLANNED</span>
-            </div>
-            <p>
-              Reader, planner, implementer, and verifier. Focused roles that connect methods to code
-              and results to evidence.
-            </p>
-          </div>
-        </article>
-        <article>
-          <span class="feature-number">03</span>
-          <div>
-            <div class="feature-title">
-              <h3>You can change the direction.</h3>
-              <span class="status-planned">PLANNED</span>
-            </div>
-            <p>
-              Correct an assumption, narrow the scope, or reject a proposal. The workflow will use
-              your feedback to revise the affected work.
-            </p>
-          </div>
-        </article>
-        <article>
-          <span class="feature-number">04</span>
-          <div>
-            <div class="feature-title">
-              <h3>Results you can retrace.</h3>
-              <span class="status-planned">PLANNED</span>
-            </div>
-            <p>
-              Trace a result back to its dataset, configuration, code, and run. Compare with the
-              paper and make deviations explicit.
-            </p>
-          </div>
-        </article>
       </div>
+      <aside class="scope-note">
+        <span class="scope-heading"><span class="live-dot"></span> What works today</span>
+        <ul>
+          <li>Project briefs & working modes</li>
+          <li>Experiment-specific requirements</li>
+          <li>Saved revisions & conflict checks</li>
+        </ul>
+        <p>
+          Agents, training runs and platform connections are being planned. This version helps you
+          get the experiment right before it runs.
+        </p>
+        <a href="https://github.com/Sarayu30/PaperLab" target="_blank" rel="noopener noreferrer"
+          >Inspect the repository ↗</a
+        >
+      </aside>
     </div>
+    <nav class="section-index" aria-label="Explore PaperLab">
+      <a href="#work"><span>01</span>Your work</a
+      ><a href="#requirements"><span>02</span>Shape the experiment</a
+      ><a href="#architecture"><span>03</span>Under the hood</a
+      ><a href="#direction"><span>04</span>What comes next</a>
+    </nav>
   </section>
 
-  <section class="demo-section" id="possibilities" aria-labelledby="demo-title">
-    <div class="section-wrap">
-      <div class="section-label">
-        <span>02 / FIT THE EXPERIMENT</span><span>INTERACTIVE EXAMPLE · NO JOBS ARE STARTED</span>
+  <section class="work-section" id="work" aria-labelledby="work-title">
+    <div class="section-header">
+      <div>
+        <span class="section-tag">01 / Your work</span>
+        <h2 id="work-title">Pick up where you left off.</h2>
       </div>
-      <div class="demo-layout">
-        <div class="demo-copy">
-          <h2 id="demo-title">Different papers.<br /><em>Different needs.</em></h2>
-          <p>
-            A laptop baseline, a training run, and a hosted-model evaluation shouldn’t start with
-            the same form.
-          </p>
-          <div class="example-tabs" role="group" aria-label="Example workload">
-            @for (item of examples; track item.name; let i = $index) {
-              <button
-                type="button"
-                [class.selected]="selected() === i"
-                [attr.aria-pressed]="selected() === i"
-                (click)="select(i)"
-              >
-                <span>0{{ i + 1 }}</span
-                >{{ item.name }}<span aria-hidden="true">↗</span>
-              </button>
-            }
+      <a class="plain-link" routerLink="/projects">All projects ↗</a>
+    </div>
+    <p class="section-description">
+      The latest briefs in your local workspace. These are your saved projects, not sample results.
+    </p>
+    @if (loading()) {
+      <p class="state-message" role="status">Loading your research briefs…</p>
+    } @else if (error()) {
+      <div class="home-error" role="alert">
+        <p>{{ error() }}</p>
+        <button class="action" (click)="load()">Retry connection</button
+        ><a routerLink="/projects/new">You can still open a blank brief →</a>
+      </div>
+    } @else {
+      @for (project of projects(); track project.id) {
+        <a class="research-entry" [routerLink]="['/projects', project.id]"
+          ><span class="entry-marker" aria-hidden="true">↗</span>
+          <div class="entry-copy">
+            <div class="entry-meta">
+              <span>{{ project.setup.dataset }}</span
+              ><span>Draft · Revision {{ project.revision }}</span>
+            </div>
+            <h3>{{ project.setup.name }}</h3>
+            <p>{{ project.setup.target_result }}</p>
+          </div>
+          <div class="entry-context">
+            <span>{{ workloads[project.setup.resource_plan.workload].label }}</span
+            ><time>{{ project.updated_at | date: 'dd MMM yyyy' }}</time>
+          </div></a
+        >
+      } @empty {
+        <div class="first-brief">
+          <div class="first-brief-copy">
+            <span class="empty-label">A workspace with room to think.</span>
+            <h3>No briefs yet.<br />Bring your first question.</h3>
+            <a class="action primary-action" routerLink="/projects/new"
+              >Create a project <span aria-hidden="true">↗</span></a
+            >
+          </div>
+          <div class="first-brief-guide">
+            <h4>Start with three things</h4>
+            <ol>
+              <li>
+                <span>01</span>
+                <div>
+                  <strong>A paper</strong>
+                  <p>Link to the original method.</p>
+                </div>
+              </li>
+              <li>
+                <span>02</span>
+                <div>
+                  <strong>A specific result</strong>
+                  <p>Choose a table, figure or experiment.</p>
+                </div>
+              </li>
+              <li>
+                <span>03</span>
+                <div>
+                  <strong>Your constraints</strong>
+                  <p>Record what you know. Leave the rest open.</p>
+                </div>
+              </li>
+            </ol>
           </div>
         </div>
-        <div class="demo-sheet" aria-live="polite">
-          <div class="demo-sheet-top">
-            <span>EXPERIMENT / EXAMPLE</span
-            ><span>{{ feedbackApplied() ? 'REVISION 02' : 'REVISION 01' }}</span>
-          </div>
-          <span class="workload-tag">{{ example().tag }}</span>
-          <h3>{{ example().title }}</h3>
-          <p class="demo-description">{{ example().description }}</p>
-          <dl>
-            @for (field of example().fields; track field[0]) {
-              <div>
-                <dt>{{ field[0] }}</dt>
-                <dd>{{ field[1] }}</dd>
-              </div>
-            }
-            @if (feedbackApplied()) {
-              <div class="added-row">
-                <dt>Data access</dt>
-                <dd>Public datasets only</dd>
-              </div>
-            }
-          </dl>
-          <p class="demo-footnote">{{ example().note }}</p>
-          <div class="feedback-demo">
-            <span class="feedback-glyph" aria-hidden="true">↳</span>
+      }
+    }
+  </section>
+
+  <section class="requirements-section" id="requirements" aria-labelledby="requirements-title">
+    <div class="section-header">
+      <div>
+        <span class="section-tag">02 / Shape the experiment</span>
+        <h2 id="requirements-title">The method decides the requirements.</h2>
+      </div>
+    </div>
+    <p class="section-description">
+      Explore the same resource catalogue used in the setup form. No assumed GPU, invented estimate,
+      or mandatory spending budget.
+    </p>
+    <div class="requirements-explorer">
+      <div class="workload-options" role="group" aria-label="Choose a workload">
+        @for (key of workloadKeys; track key) {
+          <button
+            type="button"
+            [attr.aria-pressed]="selectedWorkload() === key"
+            [class.active]="selectedWorkload() === key"
+            (click)="selectedWorkload.set(key)"
+          >
+            {{ workloads[key].label }}<span aria-hidden="true">→</span>
+          </button>
+        }
+      </div>
+      <div class="workload-detail" aria-live="polite">
+        <h3>{{ workloads[selectedWorkload()].label }}</h3>
+        <p>{{ workloads[selectedWorkload()].description }}</p>
+        <div class="requirement-list">
+          @for (kind of workloads[selectedWorkload()].suggestions; track kind) {
             <div>
-              <span class="feedback-label">TRY A HUMAN CORRECTION</span>
-              <p>“Use public datasets only.”</p>
-              <button type="button" (click)="feedbackApplied.set(!feedbackApplied())">
-                {{ feedbackApplied() ? 'Reset example' : 'Apply to this example' }}
-                <span aria-hidden="true">↗</span>
-              </button>
+              <strong>{{ catalog[kind].label }}</strong
+              ><span>{{ catalog[kind].hint }}</span>
             </div>
-          </div>
-          @if (feedbackApplied()) {
-            <p class="demo-confirmation" role="status">
-              Requirement added to this example. Your real projects are unchanged.
+          } @empty {
+            <p class="undecided-note">
+              No fields selected. You can start your brief and decide after reading the paper.
             </p>
           }
         </div>
+        <a
+          class="action primary-action"
+          routerLink="/projects/new"
+          [queryParams]="{ workload: selectedWorkload() }"
+          >Use this starting point <span aria-hidden="true">↗</span></a
+        ><small>Only the workload is preselected. You choose which requirements to add.</small>
       </div>
     </div>
   </section>
 
-  <section class="platform-section section-wrap" aria-labelledby="platform-title">
-    <div class="section-label">
-      <span>03 / YOUR TOOLS, YOUR WORK</span><span>PLATFORM INTEGRATIONS · ROADMAP</span>
-    </div>
-    <div class="platform-layout">
-      <h2 id="platform-title">The lab is an idea.<br /><em>Not one machine.</em></h2>
+  <section class="architecture-section" id="architecture" aria-labelledby="architecture-title">
+    <div class="section-header">
       <div>
-        <p>
-          Plan here. Work where the experiment makes sense. The roadmap connects the research
-          workflow to the environments you already use.
-        </p>
-        <div class="platform-list">
-          <div><strong>VS Code</strong><span>Local implementation</span></div>
-          <div><strong>Colab</strong><span>User-run notebooks</span></div>
-          <div><strong>Kaggle</strong><span>Notebook workflows</span></div>
-          <div><strong>Your compute</strong><span>Remote workers</span></div>
-        </div>
-        <p class="platform-disclosure">
-          You can record a preferred location today. Connections, exports, and job execution are not
-          available yet.
-        </p>
+        <span class="section-tag">03 / Under the hood</span>
+        <h2 id="architecture-title">A decision should leave a trace.</h2>
       </div>
+      <a
+        class="plain-link"
+        href="https://github.com/Sarayu30/PaperLab/tree/main/tests"
+        target="_blank"
+        rel="noopener noreferrer"
+        >Read the tests ↗</a
+      >
+    </div>
+    <p class="section-description">
+      Follow a saved revision through the actual implementation. Select a layer to inspect its role
+      and a source excerpt.
+    </p>
+    <div class="architecture-path" role="group" aria-label="Implementation layers">
+      @for (layer of layers; track layer.name; let i = $index) {
+        <button
+          type="button"
+          [class.active]="selectedLayer() === i"
+          [attr.aria-pressed]="selectedLayer() === i"
+          (click)="selectedLayer.set(i)"
+        >
+          <span class="layer-number">0{{ i + 1 }}</span
+          ><strong>{{ layer.name }}</strong
+          ><small>{{ layer.technology }}</small>
+        </button>
+        @if (i < layers.length - 1) {
+          <span class="path-arrow" aria-hidden="true">→</span>
+        }
+      }
+    </div>
+    <div class="implementation-detail" aria-live="polite">
+      <div>
+        <h3>{{ layers[selectedLayer()].title }}</h3>
+        <p>{{ layers[selectedLayer()].description }}</p>
+        <a
+          class="plain-link"
+          [href]="'https://github.com/Sarayu30/PaperLab/blob/main/' + layers[selectedLayer()].link"
+          target="_blank"
+          rel="noopener noreferrer"
+          >View source ↗</a
+        >
+      </div>
+      <figure>
+        <figcaption>{{ layers[selectedLayer()].artifact }} <span>Excerpt</span></figcaption>
+        <pre><code>{{ layers[selectedLayer()].code }}</code></pre>
+      </figure>
     </div>
   </section>
 
-  <section class="closing">
-    <span class="closing-bracket" aria-hidden="true">[</span>
+  <section class="direction-section" id="direction" aria-labelledby="direction-title">
     <div>
-      <p>YOUR NEXT QUESTION DESERVES AN EXPERIMENT.</p>
-      <h2>Take it off the page.</h2>
-      <a class="cta cta-dark" routerLink="/projects/new"
-        >Write your first brief <span aria-hidden="true">↗</span></a
-      ><span class="closing-note">No API key needed for project setup.</span>
+      <span class="section-tag">04 / What comes next</span>
+      <h2 id="direction-title">Build toward evidence.<br />Keep the human in the loop.</h2>
+      <p>
+        The long-term goal is a workflow from paper to implementation to reproducible results. The
+        current foundation is smaller, deliberate, and inspectable.
+      </p>
+      <a
+        class="plain-link"
+        href="https://github.com/Sarayu30/PaperLab/blob/main/PaperLab_Implementation_Plan.md"
+        target="_blank"
+        rel="noopener noreferrer"
+        >Read the implementation plan ↗</a
+      >
     </div>
-    <span class="closing-bracket" aria-hidden="true">]</span>
+    <dl class="roadmap-list">
+      <div>
+        <dt>Paper understanding</dt>
+        <dd>Extract methods, datasets and evaluation protocols.<span>Planned</span></dd>
+      </div>
+      <div>
+        <dt>Agent collaboration</dt>
+        <dd>Focused reader, planner, implementer and verifier roles.<span>Planned</span></dd>
+      </div>
+      <div>
+        <dt>Human steering</dt>
+        <dd>Apply feedback to affected work and preserve the trail.<span>Planned</span></dd>
+      </div>
+      <div>
+        <dt>Execution & evidence</dt>
+        <dd>Connect runtimes, track runs and compare with the paper.<span>Planned</span></dd>
+      </div>
+    </dl>
+  </section>
+  <section class="closing-row">
+    <h2>Have a paper in mind?</h2>
+    <a class="action primary-action" routerLink="/projects/new"
+      >Write the brief <span aria-hidden="true">↗</span></a
+    ><a
+      class="plain-link"
+      href="https://github.com/Sarayu30/PaperLab/issues"
+      target="_blank"
+      rel="noopener noreferrer"
+      >Suggest an improvement ↗</a
+    >
   </section>
 </div>

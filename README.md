@@ -31,11 +31,13 @@ FastAPI together. Ctrl+C stops both. Projects are stored in `.data/paperlab.db` 
 The Angular development proxy forwards `/api` requests to FastAPI on port 8000.
 Override ports with `PAPERLAB_WEB_PORT` and `PAPERLAB_API_PORT` when needed.
 
-The home route is PaperLab's public introduction: a field-guide theme, an illustrated research
-workflow, and interactive workload/feedback examples. The original `[p.] PaperLab` wordmark is
-retained. Examples use temporary component state and never modify real projects. Available
-features and planned agents, execution and integrations are labeled separately. **Your notebook**
-opens `/projects`; **Start an experiment** opens `/projects/new`.
+The home route is a working research overview. It displays the latest three saved briefs, a
+resource explorer using the actual setup catalogue, and a source-linked architecture explorer.
+The original `[p.] PaperLab` wordmark is retained. Choosing a workload opens a new brief with
+that workload preselected; it never invents resource values or saves a project automatically.
+The interface uses a shared neutral/ink/vermilion visual system with readable sans-serif type.
+Agents, execution and integrations remain explicitly labeled as planned. **Your notebook** opens
+`/projects`; **Start a research brief** opens `/projects/new`.
 
 ## Local API
 

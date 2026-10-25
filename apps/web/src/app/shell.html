@@ -2,23 +2,23 @@
 <div class="workspace" [class.landing-shell]="isLanding()">
   <header class="masthead">
     <a class="brand" routerLink="/" aria-label="PaperLab home"
-      ><span class="brand-symbol" aria-hidden="true">[p.]</span>PaperLab<span class="brand-caption"
-        >A REPRODUCTION NOTEBOOK</span
-      ></a
+      ><span class="brand-symbol" aria-hidden="true">[p.]</span>PaperLab</a
     >
     <nav aria-label="Main navigation">
+      <a routerLink="/" class="notebook-link home-link">Overview</a>
+      <a routerLink="/" fragment="architecture" class="notebook-link architecture-link"
+        >How it works</a
+      >
       <a routerLink="/projects" class="notebook-link"
         >Your notebook <span aria-hidden="true">↗</span></a
       >
     </nav>
-    <span class="local-badge"
-      ><span class="status-dot"></span>
-      {{ isLanding() ? 'Early access / local edition' : 'Local notebook' }}</span
-    >
   </header>
   <main id="main-content" tabindex="-1"><router-outlet /></main>
   <footer class="workspace-footer">
-    <span>PaperLab / Research in the open</span
-    ><span>Project briefs & decision records · v0.2</span>
+    <span>PaperLab · A workspace for reproducible research.</span>
+    <a href="https://github.com/Sarayu30/PaperLab" target="_blank" rel="noopener noreferrer"
+      >Source & implementation notes ↗</a
+    >
   </footer>
 </div>

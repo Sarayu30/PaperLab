@@ -3,6 +3,14 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { errorMessage, ProjectApi, ProjectSetup } from './project-api';
+import {
+  resourceCatalog,
+  workloads,
+  environments,
+  ResourceKind,
+  ResourcePlan,
+  ResourceRequirement,
+} from './resources';
 
 const requiredText = (max: number, min = 1) => [
   Validators.required,
@@ -27,6 +35,15 @@ export class ProjectForm {
   readonly conflict = signal(false);
   readonly revision = signal(0);
   readonly submitted = signal(false);
+  readonly catalog = resourceCatalog;
+  readonly resourceKinds = Object.keys(resourceCatalog) as ResourceKind[];
+  readonly workloads = workloads;
+  readonly workloadKeys = Object.keys(workloads) as (keyof typeof workloads)[];
+  readonly environments = environments;
+  readonly environmentKeys = Object.keys(environments) as (keyof typeof environments)[];
+  readonly requirements = signal<ResourceRequirement[]>([]);
+  readonly resourceError = signal('');
+  private legacy: Pick<ProjectSetup, 'max_gpu_hours' | 'max_llm_cost_usd' | 'hardware'> = {};
   readonly form = this.fb.group({
     name: ['', requiredText(120)],
     paper_url: [
@@ -39,9 +56,8 @@ export class ProjectForm {
     reproduction_mode: this.fb.control<ProjectSetup['reproduction_mode']>('reimplement'),
     control_mode: this.fb.control<ProjectSetup['control_mode']>('guided'),
     learning_mode: true,
-    max_gpu_hours: [2, [Validators.required, Validators.min(0), Validators.max(10000)]],
-    max_llm_cost_usd: [5, [Validators.required, Validators.min(0), Validators.max(100000)]],
-    hardware: ['To be confirmed', requiredText(200)],
+    workload: this.fb.control<ResourcePlan['workload']>('undecided'),
+    environment: this.fb.control<ResourcePlan['environment']>('undecided'),
     note: [''],
   });
 
@@ -63,7 +79,19 @@ export class ProjectForm {
     this.error.set('');
     try {
       const project = await this.api.get(this.id);
-      this.form.reset({ ...project.setup, note: '' });
+      this.form.reset({
+        ...project.setup,
+        workload: project.setup.resource_plan.workload,
+        environment: project.setup.resource_plan.environment,
+        note: '',
+      });
+      this.requirements.set(project.setup.resource_plan.requirements.map((r) => ({ ...r })));
+      this.legacy = {
+        max_gpu_hours: project.setup.max_gpu_hours,
+        max_llm_cost_usd: project.setup.max_llm_cost_usd,
+        hardware: project.setup.hardware,
+      };
+      this.resourceError.set('');
       this.revision.set(project.revision);
       this.conflict.set(false);
       this.submitted.set(false);
@@ -81,20 +109,90 @@ export class ProjectForm {
       target_result: 'Select and verify one CIFAR-10 result from the paper before implementation.',
       dataset: 'CIFAR-10',
       metric: 'test_error',
-      hardware: 'To be confirmed',
+      workload: 'training',
     });
   }
 
+  hasResource(kind: ResourceKind) {
+    return kind !== 'custom' && this.requirements().some((r) => r.kind === kind);
+  }
+  addResource(kind: ResourceKind) {
+    if (this.hasResource(kind) || this.requirements().length >= 30) return;
+    this.requirements.update((rows) => [
+      ...rows,
+      { kind, label: kind === 'custom' ? '' : this.catalog[kind].label, value: null },
+    ]);
+  }
+  removeResource(index: number) {
+    this.requirements.update((rows) => rows.filter((_, i) => i !== index));
+  }
+  editResource(index: number, field: 'value' | 'label', event: Event) {
+    const input = event.target as HTMLInputElement;
+    const raw = input.value;
+    this.requirements.update((rows) =>
+      rows.map((row, i) => {
+        if (i !== index) return row;
+        if (field === 'label') return { ...row, label: raw };
+        return {
+          ...row,
+          value: input.validity.badInput
+            ? Number.NaN
+            : raw.trim() === ''
+              ? null
+              : this.catalog[row.kind].type === 'text'
+                ? raw
+                : Number(raw),
+        };
+      }),
+    );
+  }
+  validateResources(): boolean {
+    const labels = new Set<string>();
+    for (const row of this.requirements()) {
+      if (!row.label.trim() || labels.has(row.label.trim().toLowerCase())) {
+        this.resourceError.set('Give each custom requirement a unique, nonempty name.');
+        return false;
+      }
+      labels.add(row.label.trim().toLowerCase());
+      if (
+        typeof row.value === 'number' &&
+        (!Number.isFinite(row.value) ||
+          row.value < 0 ||
+          (this.catalog[row.kind].type === 'count' && !Number.isInteger(row.value)))
+      ) {
+        this.resourceError.set(
+          'Use nonnegative numbers and whole numbers for counts. Leave unknown values blank.',
+        );
+        return false;
+      }
+    }
+    this.resourceError.set('');
+    return true;
+  }
+
   async save() {
-    if (this.saving() || this.loading()) return;
+    if (this.saving() || this.loading() || this.conflict()) return;
     this.submitted.set(true);
-    if (this.form.invalid) {
+    if (!this.validateResources() || this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
     this.saving.set(true);
     this.error.set('');
-    const { note, ...setup } = this.form.getRawValue();
+    const { note, workload, environment, ...fields } = this.form.getRawValue();
+    const setup: ProjectSetup = {
+      ...fields,
+      ...this.legacy,
+      resource_plan: {
+        workload,
+        environment,
+        requirements: this.requirements().map((r) => ({
+          ...r,
+          label: r.label.trim(),
+          value: typeof r.value === 'string' ? r.value.trim() || null : r.value,
+        })),
+      },
+    };
     try {
       const result = this.id
         ? await this.api.revise(this.id, this.revision(), setup, note)

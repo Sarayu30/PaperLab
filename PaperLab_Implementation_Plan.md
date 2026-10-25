@@ -436,9 +436,17 @@ Track verified target completion, false success claims, feedback application cor
 - A fresh environment can execute the reproduction command; the result is judged against the accepted target.
 - The exported repository includes setup, data instructions, results, deviations, limitations, one extension where feasible, and learning notes.
 
+### Resource setup revision — 25 October 2026
+
+Project setup now starts with optional, experiment-specific requirements instead of mandatory GPU hours, model spend and hardware fields. The Angular notebook lets the user choose an undecided, CPU, training, inference, hosted API, simulation or mixed workload and a planned execution location. Suggestions add individual fields; switching workload never removes existing entries. Users can add custom requirements for licenses, simulators, access conditions or other needs.
+
+Available CPU cores, RAM, VRAM and storage are distinct from ceilings on GPU time, run duration and spending. Experiment API spend is separate from PaperLab assistant spend; API request and token quotas can be recorded independently. Blank means unknown, zero means zero, and omission means unspecified. None grants permission for unlimited execution. Existing revisions are preserved, including the original resource fields.
+
+This milestone records requirements only. A later feasibility stage must attach paper evidence and per-run estimates, verify the actual environment, and resolve unknown prerequisites before execution. Colab and Kaggle selections are preferences, not connected runtimes or guaranteed allocations. See [resource design and research](docs/resource-design.md) for evidence, units, compatibility and remaining work.
+
 ## 12 Decisions to settle before implementation
 
-The architecture can begin with practical defaults: a single user, Python and PyTorch workloads, one Linux compute worker, one feasible paper, local artifact storage, and explicit GPU and model-call limits. These are proposed defaults, not assumptions about the user's existing hardware.
+The architecture can begin with a single user, one feasible paper and local artifact storage. Choose the implementation stack and execution worker after inspecting that paper. Start with undecided resources; collect only relevant constraints and resolve them before admitting a run.
 
 Before provisioning compute, choose the first paper, available GPU or CPU, LLM provider access, maximum spend, and whether the first task is Run, Retrain, or Reimplement. Before external publication, choose the repository destination and visibility. These decisions affect execution configuration rather than the overall feedback architecture.
 

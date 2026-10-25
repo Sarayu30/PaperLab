@@ -1,7 +1,8 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { errorMessage, Project, ProjectApi } from './project-api';
+import { workloads, environments } from './resources';
 
 @Component({
   imports: [RouterLink, DatePipe],
@@ -14,6 +15,35 @@ export class ProjectList {
   readonly loading = signal(true);
   readonly error = signal('');
   readonly hasMore = signal(false);
+  readonly query = signal('');
+  readonly workloads = workloads;
+  readonly environments = environments;
+  readonly filtered = computed(() => {
+    const term = this.query().trim().toLowerCase();
+    return this.projects().filter((p) =>
+      [p.setup.name, p.setup.dataset, p.setup.target_result, p.setup.metric]
+        .join(' ')
+        .toLowerCase()
+        .includes(term),
+    );
+  });
+  readonly latest = computed(
+    () => [...this.projects()].sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0],
+  );
+  search(event: Event) {
+    this.query.set((event.target as HTMLInputElement).value);
+  }
+  paperReference(url: string) {
+    try {
+      const paper = new URL(url);
+      return (
+        paper.hostname +
+        (paper.hostname === 'arxiv.org' ? paper.pathname.replace('/abs/', ' / ') : '')
+      );
+    } catch {
+      return 'Paper reference';
+    }
+  }
 
   constructor() {
     void this.load();

@@ -1,49 +1,21 @@
-<a class="skip-link" href="#main-content">Skip to content</a>
+﻿<a class="skip-link" href="#main-content">Skip to content</a>
 <div class="workspace">
-  <aside class="sidebar">
-    <a class="brand" routerLink="/projects" aria-label="PaperLab home">
-      <span class="brand-mark" aria-hidden="true">P<span>↗</span></span>
-      <span>PaperLab<span class="brand-caption">RESEARCH WORKSPACE</span></span>
-    </a>
-    <div class="workspace-label"><span class="status-dot"></span> Local workspace</div>
+  <header class="masthead">
+    <a class="brand" routerLink="/projects" aria-label="PaperLab home"
+      ><span class="brand-symbol" aria-hidden="true">[p.]</span>PaperLab<span class="brand-caption"
+        >A REPRODUCTION NOTEBOOK</span
+      ></a
+    >
     <nav aria-label="Main navigation">
-      <a class="nav-link active" routerLink="/projects"
-        ><span aria-hidden="true">▤</span> Projects
-        <span class="nav-arrow" aria-hidden="true">↗</span></a
+      <a routerLink="/projects" class="notebook-link"
+        >Your notebook <span aria-hidden="true">↗</span></a
       >
     </nav>
-    <div class="sidebar-section">
-      <p class="eyebrow">The research process</p>
-      <ol class="workflow-list">
-        <li class="current">
-          <span>01</span>
-          <div>Project setup<small>Available now</small></div>
-        </li>
-        <li>
-          <span>02</span>
-          <div>Read the paper<small>Coming next</small></div>
-        </li>
-        <li>
-          <span>03</span>
-          <div>Implement and run<small>Planned</small></div>
-        </li>
-        <li>
-          <span>04</span>
-          <div>Verify the results<small>Planned</small></div>
-        </li>
-      </ol>
-    </div>
-    <div class="sidebar-footer">
-      <span class="small-label">BUILT FOR REPRODUCIBILITY</span>
-      <p>A clear target.<br />Evidence for every result.</p>
-      <span class="version">v0.1 · Project setup</span>
-    </div>
-  </aside>
-  <div class="main-shell">
-    <header class="topbar">
-      <span>Workspace <span class="slash">/</span> Projects</span
-      ><span class="local-badge"><span class="status-dot"></span> Local development</span>
-    </header>
-    <main id="main-content" tabindex="-1"><router-outlet /></main>
-  </div>
+    <span class="local-badge"><span class="status-dot"></span> Local notebook</span>
+  </header>
+  <main id="main-content" tabindex="-1"><router-outlet /></main>
+  <footer class="workspace-footer">
+    <span>PaperLab / Research in the open</span
+    ><span>Project briefs & decision records · v0.2</span>
+  </footer>
 </div>

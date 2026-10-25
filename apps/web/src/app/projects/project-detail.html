@@ -11,7 +11,7 @@
 @if (project(); as p) {
   <div class="page-heading">
     <div>
-      <p class="eyebrow">Project overview <span class="badge">Draft</span></p>
+      <p class="eyebrow">Experiment brief <span class="badge">Draft</span></p>
       <h1>{{ p.setup.name }}</h1>
       <p class="lede">Revision {{ p.revision }} · Updated {{ p.updated_at | date: 'medium' }}</p>
     </div>
@@ -47,8 +47,8 @@
           <dd>{{ format(p.setup.reproduction_mode) }}</dd>
         </div>
         <div>
-          <dt>Hardware</dt>
-          <dd>{{ p.setup.hardware }}</dd>
+          <dt>Kind of work</dt>
+          <dd>{{ workloads[p.setup.resource_plan.workload].label }}</dd>
         </div>
       </dl>
       <a class="paper-link" [href]="p.setup.paper_url" target="_blank" rel="noopener noreferrer"
@@ -56,7 +56,7 @@
       >
     </section>
     <section class="panel preferences-panel">
-      <h2>Your preferences</h2>
+      <h2>Working agreement</h2>
       <dl class="stacked-data">
         <div>
           <dt>Operating mode</dt>
@@ -67,21 +67,39 @@
           <dd>{{ p.setup.learning_mode ? 'Included' : 'Off' }}</dd>
         </div>
         <div>
-          <dt>GPU-hour limit</dt>
-          <dd>{{ p.setup.max_gpu_hours | number: '1.0-2' }} hours</dd>
-        </div>
-        <div>
-          <dt>Model budget</dt>
-          <dd>{{ p.setup.max_llm_cost_usd | currency: 'USD' : 'symbol' : '1.2-2' }}</dd>
+          <dt>Planned location</dt>
+          <dd>{{ environments[p.setup.resource_plan.environment] }}</dd>
         </div>
       </dl>
-      <p class="quiet-note">Limits are recorded for future execution.</p>
+      <p class="quiet-note">Preferences for future work. No agents are running.</p>
     </section>
   </div>
+  <section class="panel resource-record">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Feasibility notes</p>
+        <h2>Experiment requirements</h2>
+      </div>
+      <span class="count">{{ p.setup.resource_plan.requirements.length }} recorded</span>
+    </div>
+    <dl class="requirements-ledger">
+      @for (row of p.setup.resource_plan.requirements; track $index) {
+        <div>
+          <dt>{{ row.label }}</dt>
+          <dd [class.unknown]="row.value === null">{{ resourceValue(row) }}</dd>
+        </div>
+      } @empty {
+        <p class="muted">Not specified yet. Add requirements after reviewing the method.</p>
+      }
+    </dl>
+    <p class="quiet-note">
+      Recorded by you. Not extracted from the paper or verified against a runtime.
+    </p>
+  </section>
   <section class="panel history-panel">
     <div class="section-heading">
       <div>
-        <h2>Revision history</h2>
+        <h2>Decision log</h2>
         <p class="muted">A record of your decisions, with the previous setup preserved.</p>
       </div>
       <span class="count">{{ history().length }}</span>

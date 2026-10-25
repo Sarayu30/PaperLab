@@ -1,17 +1,11 @@
-import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import {
-  errorMessage,
-  fieldLabels,
-  Project,
-  ProjectApi,
-  ProjectSetup,
-  Revision,
-} from './project-api';
+import { errorMessage, fieldLabels, Project, ProjectApi, Revision } from './project-api';
+import { resourceSummary, resourceValue, ResourcePlan, workloads, environments } from './resources';
 
 @Component({
-  imports: [RouterLink, DatePipe, CurrencyPipe, DecimalPipe],
+  imports: [RouterLink, DatePipe],
   templateUrl: './project-detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -23,7 +17,10 @@ export class ProjectDetail {
   readonly loading = signal(true);
   readonly error = signal('');
   readonly labels = fieldLabels;
-  readonly keys = Object.keys(fieldLabels) as (keyof ProjectSetup)[];
+  readonly keys = Object.keys(fieldLabels) as (keyof typeof fieldLabels)[];
+  readonly resourceValue = resourceValue;
+  readonly workloads = workloads;
+  readonly environments = environments;
 
   constructor() {
     void this.load();
@@ -51,11 +48,12 @@ export class ProjectDetail {
       previous = this.history()[index + 1];
     if (!previous) return [];
     return this.keys
-      .filter((key) => current.setup[key] !== previous.setup[key])
+      .filter((key) => JSON.stringify(current.setup[key]) !== JSON.stringify(previous.setup[key]))
       .map((key) => fieldLabels[key]);
   }
 
-  format(value: string | number | boolean): string {
+  format(value: string | number | boolean | ResourcePlan): string {
+    if (typeof value === 'object') return resourceSummary(value);
     if (typeof value === 'boolean') return value ? 'On' : 'Off';
     if (value === 'autonomous') return 'Autonomous within limits';
     if (value === 'reimplement') return 'Reimplement from the paper';

@@ -1,19 +1,16 @@
-<div class="page-heading">
+﻿<div class="notebook-heading">
   <div>
-    <p class="eyebrow">Your research</p>
-    <h1>Projects</h1>
-    <p class="lede">Start with a paper. Give your experiment a clear target.</p>
+    <p class="eyebrow">Personal research notebook</p>
+    <h1>Your research,<br /><em>in progress.</em></h1>
+    <p class="lede">
+      The papers you choose. The claims you test.<br />A record of what you change along the way.
+    </p>
   </div>
-  <a class="button primary" routerLink="/projects/new"
-    ><span aria-hidden="true">+</span> New project</a
-  >
-</div>
-<div class="milestone-note">
-  <span class="accent-label">01 / PROJECT SETUP</span>
-  <p>
-    Define your target, choose how you want to work, and record your limits. Paper analysis and
-    experiments come next.
-  </p>
+  <div class="notebook-action">
+    <span class="index-mark" aria-hidden="true">P / L</span
+    ><a class="button primary" routerLink="/projects/new">+ New project</a>
+    <p>Start with one result from one paper.</p>
+  </div>
 </div>
 @if (error()) {
   <div class="error-message" role="alert">
@@ -22,63 +19,109 @@
   </div>
 }
 @if (loading() && !projects().length) {
-  <div class="loading-state" role="status">Loading your projects…</div>
+  <div class="loading-state" role="status">Opening your notebook…</div>
 }
 @if (!loading() && !error() && !projects().length) {
-  <section class="empty-state">
-    <div class="paper-illustration" aria-hidden="true">
-      <div class="paper-sheet">
-        <span class="paper-kicker">RESEARCH NOTES</span><span class="paper-line wide"></span
-        ><span class="paper-line"></span><span class="paper-line short"></span>
-        <div class="paper-chart"><i></i><i></i><i></i><i></i><i></i></div>
-        <span class="paper-stamp">01</span>
-      </div>
+  <section class="empty-notebook">
+    <div class="notebook-margin">
+      <span class="eyebrow">Entry 001</span><span class="margin-rule"></span
+      ><span class="vertical-note">An experiment begins with a question.</span>
     </div>
-    <p class="eyebrow">A place to begin</p>
-    <h2>Your first paper starts here.</h2>
-    <p>
-      Choose a result you want to reproduce.<br />Keep your plan, decisions, and revisions together.
-    </p>
-    <a class="button primary" routerLink="/projects/new"
-      >Create your first project <span aria-hidden="true">↗</span></a
-    ><span class="quiet-note">No API key or GPU needed for setup.</span>
+    <div class="empty-body">
+      <p class="eyebrow">No experiments recorded</p>
+      <h2>Which result would<br />you like to check?</h2>
+      <p>
+        You don’t need the whole implementation figured out.<br />Bring a paper and a question. The
+        brief can evolve.
+      </p>
+      <a class="text-link" routerLink="/projects/new"
+        >Write your first brief <span aria-hidden="true">↗</span></a
+      >
+    </div>
+    <div class="entry-outline">
+      <span class="hand-note">Notes before code</span>
+      <ol>
+        <li><span>01</span> The paper & the claim</li>
+        <li><span>02</span> Your role in the work</li>
+        <li><span>03</span> What the experiment needs</li>
+      </ol>
+      <p>Resources can stay undecided.<br />Nothing runs when you save.</p>
+    </div>
   </section>
 }
 @if (projects().length) {
-  <div class="section-heading">
-    <h2>
-      Your projects <span class="count">{{ projects().length }}</span>
-    </h2>
-    <span class="muted">Newest first</span>
-  </div>
-  <div class="project-grid">
-    @for (project of projects(); track project.id) {
-      <a class="project-card" [routerLink]="['/projects', project.id]">
-        <div class="card-top">
-          <span class="document-icon" aria-hidden="true">▤</span><span class="badge">Draft</span>
+  <section aria-label="Experiment index">
+    <div class="index-toolbar">
+      <h2>
+        Experiment index
+        <span class="count">{{ projects().length }}{{ hasMore() ? '+' : '' }}</span>
+      </h2>
+      <div class="search-field">
+        <label for="project-search">Find a project</label
+        ><input
+          id="project-search"
+          type="search"
+          [value]="query()"
+          (input)="search($event)"
+          placeholder="Title, dataset or target…"
+        />
+      </div>
+    </div>
+    <div class="ledger-header" aria-hidden="true">
+      <span>Ref.</span><span>Paper / experiment</span><span>Method & location</span
+      ><span>Last revised</span>
+    </div>
+    <div class="project-ledger">
+      @for (project of filtered(); track project.id; let i = $index) {
+        <a class="project-row" [routerLink]="['/projects', project.id]">
+          <span class="entry-number">{{ (i + 1).toString().padStart(2, '0') }}</span>
+          <div class="entry-main">
+            <p class="paper-reference">
+              {{ paperReference(project.setup.paper_url) }} <span class="badge">Draft</span>
+            </p>
+            <h3>{{ project.setup.name }}</h3>
+            <p class="target-preview">{{ project.setup.target_result }}</p>
+            <span class="dataset-label"
+              >{{ project.setup.dataset }} <span aria-hidden="true">/</span>
+              {{ project.setup.metric }}</span
+            >
+          </div>
+          <div class="entry-method">
+            <span>{{ workloads[project.setup.resource_plan.workload].label }}</span
+            ><small>{{ environments[project.setup.resource_plan.environment] }}</small
+            ><small>{{
+              project.setup.control_mode === 'guided' ? 'Human-guided' : 'Autonomous within limits'
+            }}</small>
+          </div>
+          <div class="entry-date">
+            <span>{{ project.updated_at | date: 'dd MMM yyyy' }}</span
+            ><small>Revision {{ project.revision }}</small
+            ><span class="open-entry" aria-hidden="true">↗</span>
+          </div>
+        </a>
+      } @empty {
+        <div class="no-results">
+          <p>No projects match “{{ query() }}”.</p>
+          <button class="text-button" (click)="query.set('')">Clear search</button>
         </div>
-        <h3>{{ project.setup.name }}</h3>
-        <p class="target-preview">{{ project.setup.target_result }}</p>
-        <div class="card-tags">
-          <span>{{ project.setup.reproduction_mode }}</span
-          ><span>{{
-            project.setup.control_mode === 'guided' ? 'Guided' : 'Autonomous within limits'
-          }}</span>
-          @if (project.setup.learning_mode) {
-            <span>Learning</span>
-          }
-        </div>
-        <div class="card-bottom">
-          <span
-            >Revision {{ project.revision }} · {{ project.created_at | date: 'mediumDate' }}</span
-          ><span aria-hidden="true">↗</span>
-        </div>
-      </a>
+      }
+    </div>
+    @if (hasMore()) {
+      <button class="button secondary load-more" [disabled]="loading()" (click)="load(true)">
+        {{ loading() ? 'Loading…' : 'Load more projects' }}
+      </button>
+      <p class="quiet-note">Search covers the projects currently loaded.</p>
     }
-  </div>
-  @if (hasMore()) {
-    <button class="button secondary load-more" [disabled]="loading()" (click)="load(true)">
-      {{ loading() ? 'Loading…' : 'Load more projects' }}
-    </button>
+  </section>
+  @if (latest(); as recent) {
+    <aside class="last-entry">
+      <span class="eyebrow">Last worked on</span
+      ><a [routerLink]="['/projects', recent.id]">{{ recent.setup.name }} ↗</a
+      ><span>Revision {{ recent.revision }} · {{ recent.updated_at | date: 'medium' }}</span>
+    </aside>
   }
 }
+<p class="workspace-note">
+  <span class="note-mark">Note</span> This notebook currently records briefs and revisions. Paper
+  analysis and execution are still to come.
+</p>

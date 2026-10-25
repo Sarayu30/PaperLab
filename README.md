@@ -6,12 +6,14 @@ Human-guided workflows for reproducing machine learning research.
 
 - Create a project with a paper URL, target result, dataset and metric.
 - Choose Run, Retrain or Reimplement; Guided or Autonomous; and optional Learning support.
-- Record GPU-hour and model-spending limits.
+- Build an optional resource checklist for CPU, training, inference, API, simulation or mixed work.
+- Add/remove suggested fields, leave unknowns blank, or record custom requirements.
+- Search your experiment index by title, dataset, target or metric.
 - Save setup changes as revisions with a human explanation.
 - Preserve revision history and reject edits based on an older revision.
 
 This is the project-setup milestone. Paper reading, agent execution, training, budget enforcement,
-and Kaggle/Colab execution are planned. All projects remain drafts. Mode and budget fields are saved
+and Kaggle/Colab execution are planned. All projects remain drafts. Mode and resource fields are saved
 configuration; they do not start agents or spend money.
 
 ## Run the Angular app
@@ -70,6 +72,10 @@ node apps/web/node_modules/@playwright/test/cli.js install chromium
 UI tests start their own servers on ports 4201/8001 and use a separate SQLite database in
 `.cache/e2e`. They cover project creation, persistence after refresh, revisions, competing edits,
 validation, API failure recovery and mobile layout. Test screenshots are in `apps/web/test-results`.
+When debugging with separately launched test servers, set `PAPERLAB_E2E_EXTERNAL_SERVER=1` to
+skip the test runner's server launcher. Use a fresh, dedicated test database on port 8001 and
+an Angular server on port 4201 configured with `PAPERLAB_API_PORT=8001`; never point this mode
+at your working project database.
 The Vite dependency override pins the compatible 8.3.3 security patch until Angular updates its pin.
 
 ## Manual test for this milestone
@@ -86,3 +92,19 @@ The Vite dependency override pins the compatible 8.3.3 security patch until Angu
 Read [the implementation plan](PaperLab_Implementation_Plan.md) or open
 `PaperLab_Implementation_Plan.html` in a browser. Regenerate the HTML with `node build_plan.cjs`.
 
+
+## Adaptive resources (25 October 2026)
+
+The resource section starts empty. Pick a workload to see suggested fields, then add only what
+applies. Available capacity, runtime ceilings, API quotas, experiment spend and assistant spend
+have separate fields and explicit units. Blank values are unknown; zero remains zero. Switching
+workload keeps existing rows. Planned locations are preferences, not connected runtimes.
+
+Try **CPU / classical ML**, add RAM, then switch to **Hosted API experiment**: RAM stays, and
+API suggestions appear. Add a zero-dollar API budget, leave a request quota blank, and add a
+custom license requirement. Save and refresh; each value should retain its meaning. Remove a
+field in a revision; the previous revision should still contain it. Old v0.1 projects load through
+backward-compatible resource normalization without rewriting historical JSON.
+
+See [resource design and sources](docs/resource-design.md). Per-experiment extraction, feasibility
+estimation and enforcement belong to the later execution stage.

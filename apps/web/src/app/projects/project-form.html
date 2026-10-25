@@ -4,12 +4,12 @@
 <div class="page-heading compact">
   <div>
     <p class="eyebrow">Project setup</p>
-    <h1>{{ id ? 'Revise your setup' : 'Start a new project' }}</h1>
+    <h1>{{ id ? 'Revise your setup' : 'Write an experiment brief' }}</h1>
     <p class="lede">
       {{
         id
           ? 'Record what changed and why. Earlier revisions stay in your history.'
-          : 'Choose a paper, a result, and the boundaries for your work.'
+          : 'One paper. One result worth checking. Start with what you know.'
       }}
     </p>
   </div>
@@ -35,7 +35,7 @@
         <div class="form-section-heading">
           <span class="section-number">01</span>
           <div>
-            <h2>The paper and target</h2>
+            <h2>The claim you want to check</h2>
             <p>Focus on one result you can check against the paper.</p>
           </div>
           @if (!id) {
@@ -124,7 +124,7 @@
         <div class="form-section-heading">
           <span class="section-number">02</span>
           <div>
-            <h2>How you want to work</h2>
+            <h2>Your role in the research</h2>
             <p>You can revise these preferences as the project develops.</p>
           </div>
         </div>
@@ -154,59 +154,138 @@
           ></label
         >
       </section>
-      <section class="form-section">
+      <section class="form-section resource-section" id="requirements">
         <div class="form-section-heading">
           <span class="section-number">03</span>
           <div>
-            <h2>Resources and limits</h2>
-            <p>Set the limits that future experiments must respect.</p>
+            <h2>What does this experiment need?</h2>
+            <p>Optional for now. Build a checklist that fits your paper.</p>
           </div>
         </div>
         <div class="field-grid">
           <div class="field">
-            <label for="max_gpu_hours">GPU-hour limit</label
-            ><input
-              id="max_gpu_hours"
-              type="number"
-              formControlName="max_gpu_hours"
-              min="0"
-              max="10000"
-              step="0.25"
-              [attr.aria-invalid]="invalid('max_gpu_hours')"
-            /><small>Set 0 for CPU-only work.</small>
-            @if (invalid('max_gpu_hours')) {
-              <small class="field-error">Enter a value from 0 to 10,000.</small>
-            }
+            <label for="workload">Kind of work</label
+            ><select id="workload" formControlName="workload">
+              @for (key of workloadKeys; track key) {
+                <option [value]="key">{{ workloads[key].label }}</option>
+              }
+            </select>
           </div>
           <div class="field">
-            <label for="max_llm_cost_usd">Model budget (USD)</label
-            ><input
-              id="max_llm_cost_usd"
-              type="number"
-              formControlName="max_llm_cost_usd"
-              min="0"
-              max="100000"
-              step="0.01"
-              [attr.aria-invalid]="invalid('max_llm_cost_usd')"
-            /><small>Separate from the cost of compute.</small>
-            @if (invalid('max_llm_cost_usd')) {
-              <small class="field-error">Enter a value from 0 to 100,000.</small>
-            }
+            <label for="environment">Where you plan to run it</label
+            ><select id="environment" formControlName="environment">
+              @for (key of environmentKeys; track key) {
+                <option [value]="key">{{ environments[key] }}</option>
+              }</select
+            ><small>A preference only. No platform is connected.</small>
           </div>
         </div>
-        <div class="field">
-          <label for="hardware">Available hardware</label
-          ><input
-            id="hardware"
-            formControlName="hardware"
-            placeholder="e.g. Local GPU with 8 GB VRAM, or To be confirmed"
-            maxlength="200"
-            [attr.aria-invalid]="invalid('hardware')"
-          />
-          @if (invalid('hardware')) {
-            <small class="field-error">Describe the hardware or enter “To be confirmed”.</small>
+        @if (
+          form.controls.environment.value === 'colab' ||
+          form.controls.environment.value === 'kaggle'
+        ) {
+          <p class="platform-note">
+            Check the resources in your actual notebook session. Selecting a platform does not
+            reserve hardware or guarantee runtime.
+          </p>
+        }
+        <div class="resource-suggestions">
+          <p>{{ workloads[form.controls.workload.value].description }}</p>
+          @if (workloads[form.controls.workload.value].suggestions.length) {
+            <span class="eyebrow">Suggested fields · choose what applies</span>
+            <div class="suggestion-buttons">
+              @for (kind of workloads[form.controls.workload.value].suggestions; track kind) {
+                <button
+                  type="button"
+                  class="add-field"
+                  [disabled]="hasResource(kind) || requirements().length >= 30"
+                  (click)="addResource(kind)"
+                >
+                  {{ hasResource(kind) ? '✓' : '+' }} {{ catalog[kind].label }}
+                </button>
+              }
+            </div>
           }
         </div>
+        @if (resourceError()) {
+          <p class="field-error" role="alert">{{ resourceError() }}</p>
+        }
+        <div class="resource-rows">
+          @for (row of requirements(); track $index; let i = $index) {
+            <div class="resource-row">
+              <div class="resource-description">
+                @if (row.kind === 'custom') {
+                  <label [for]="'resource-label-' + i">Requirement name</label
+                  ><input
+                    [id]="'resource-label-' + i"
+                    [value]="row.label"
+                    (input)="editResource(i, 'label', $event)"
+                    maxlength="200"
+                    placeholder="e.g. Simulator license"
+                  />
+                } @else {
+                  <label [for]="'resource-value-' + i">{{ catalog[row.kind].label }}</label>
+                }
+                <small>{{ catalog[row.kind].hint }}</small>
+              </div>
+              <div class="resource-entry">
+                @if (row.kind === 'custom') {
+                  <label [for]="'resource-value-' + i">Requirement details</label>
+                }
+                <input
+                  [id]="'resource-value-' + i"
+                  [type]="catalog[row.kind].type === 'text' ? 'text' : 'number'"
+                  [attr.aria-label]="
+                    row.kind === 'custom' ? 'Requirement details' : catalog[row.kind].label
+                  "
+                  [value]="row.value ?? ''"
+                  (input)="editResource(i, 'value', $event)"
+                  min="0"
+                  [step]="catalog[row.kind].type === 'count' ? '1' : 'any'"
+                  maxlength="1000"
+                  placeholder="To be confirmed"
+                />
+                <span class="resource-unit">{{ catalog[row.kind].unit }}</span>
+              </div>
+              <button
+                type="button"
+                class="remove-field"
+                [attr.aria-label]="'Remove ' + (row.label || 'custom requirement')"
+                (click)="removeResource(i)"
+              >
+                ×
+              </button>
+            </div>
+          } @empty {
+            <div class="no-requirements">
+              <span aria-hidden="true">[ — ]</span>
+              <p>
+                No requirements added yet.<small
+                  >You can save your brief now and return after reading the methodology.</small
+                >
+              </p>
+            </div>
+          }
+        </div>
+        <details class="resource-picker">
+          <summary>Add another requirement</summary>
+          <div class="suggestion-buttons">
+            @for (kind of resourceKinds; track kind) {
+              <button
+                type="button"
+                class="add-field"
+                [disabled]="hasResource(kind) || requirements().length >= 30"
+                (click)="addResource(kind)"
+              >
+                + {{ catalog[kind].label }}
+              </button>
+            }
+          </div>
+        </details>
+        <p class="quiet-note">
+          Blank means unknown; 0 is an explicit zero. Changing the kind of work keeps your added
+          fields. These are recorded requirements, not enforced limits.
+        </p>
       </section>
       @if (id) {
         <section class="form-section">

@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom, timeout } from 'rxjs';
+import { ResourcePlan } from './resources';
 
 export interface ProjectSetup {
   name: string;
@@ -11,9 +12,10 @@ export interface ProjectSetup {
   reproduction_mode: 'run' | 'retrain' | 'reimplement';
   control_mode: 'guided' | 'autonomous';
   learning_mode: boolean;
-  max_gpu_hours: number;
-  max_llm_cost_usd: number;
-  hardware: string;
+  max_gpu_hours?: number | null;
+  max_llm_cost_usd?: number | null;
+  hardware?: string | null;
+  resource_plan: ResourcePlan;
 }
 
 export interface Project {
@@ -32,7 +34,7 @@ export interface Revision {
   created_at: string;
 }
 
-export const fieldLabels: Record<keyof ProjectSetup, string> = {
+export const fieldLabels = {
   name: 'Project name',
   paper_url: 'Paper URL',
   target_result: 'Target result',
@@ -41,10 +43,8 @@ export const fieldLabels: Record<keyof ProjectSetup, string> = {
   reproduction_mode: 'Reproduction approach',
   control_mode: 'Operating mode',
   learning_mode: 'Learning support',
-  max_gpu_hours: 'GPU-hour limit',
-  max_llm_cost_usd: 'Model budget (USD)',
-  hardware: 'Available hardware',
-};
+  resource_plan: 'Experiment requirements',
+} satisfies Partial<Record<keyof ProjectSetup, string>>;
 
 export function errorMessage(error: unknown): string {
   if (error instanceof HttpErrorResponse) {
@@ -59,7 +59,7 @@ export function errorMessage(error: unknown): string {
     if (Array.isArray(detail))
       return detail
         .map((item: { loc: string[]; msg: string }) => {
-          const key = item.loc[item.loc.length - 1] as keyof ProjectSetup;
+          const key = item.loc[item.loc.length - 1] as keyof typeof fieldLabels;
           return `${fieldLabels[key] ?? key}: ${item.msg}`;
         })
         .join(' ');

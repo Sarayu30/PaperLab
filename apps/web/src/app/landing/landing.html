@@ -1,15 +1,15 @@
 ﻿<div class="desk-home">
   <section class="introduction" aria-labelledby="intro-title">
     <div class="intro-index">
-      <span class="section-tag">Research workspace</span
-      ><span class="version-label">Local edition / 0.2</span>
+      <span class="section-tag">For researchers, students, and curious minds</span
+      ><span class="version-label">The research notebook / 01</span>
     </div>
     <div class="intro-layout">
       <div>
-        <h1 id="intro-title">Good research starts<br />with a better question<span>.</span></h1>
+        <h1 id="intro-title">Turn research<br />papers into<br /><em>experiments.</em></h1>
         <p class="intro-description">
-          PaperLab is a working space for reproducing machine learning papers. Define the result you
-          want to check, make your constraints explicit, and keep the reasoning behind every change.
+          Read with a question. Plan with a purpose. Build a reproducible experiment from a machine
+          learning paper — one considered step at a time.
         </p>
         <div class="intro-actions">
           <a class="action primary-action" routerLink="/projects/new"
@@ -19,41 +19,141 @@
           >
         </div>
       </div>
-      <aside class="scope-note">
-        <span class="scope-heading"><span class="live-dot"></span> What works today</span>
-        <ul>
-          <li>Project briefs & working modes</li>
-          <li>Experiment-specific requirements</li>
-          <li>Saved revisions & conflict checks</li>
-        </ul>
-        <p>
-          Agents, training runs and platform connections are being planned. This version helps you
-          get the experiment right before it runs.
-        </p>
-        <a href="https://github.com/Sarayu30/PaperLab" target="_blank" rel="noopener noreferrer"
-          >Inspect the repository ↗</a
-        >
+      <aside class="lab-preview" aria-label="Illustrative research brief">
+        <span class="margin-note">read. question. make it yours.</span>
+        <div class="preview-frame">
+          <div class="preview-toolbar">
+            <span class="preview-dot"></span> Research notebook <span>Illustrative brief</span>
+          </div>
+          <div class="preview-body">
+            <div class="paper-pane">
+              <span class="paper-caption">PAPER / COMPUTER VISION</span>
+              <h2>Deep Residual Learning<br />for Image Recognition</h2>
+              <p class="paper-byline">He et al. · 2015</p>
+              <svg
+                class="residual-diagram"
+                viewBox="0 0 280 205"
+                role="img"
+                aria-label="Residual block: two weight layers plus a skip connection"
+              >
+                <defs>
+                  <marker
+                    id="arrow"
+                    viewBox="0 0 10 10"
+                    refX="8"
+                    refY="5"
+                    markerWidth="5"
+                    markerHeight="5"
+                    orient="auto-start-reverse"
+                  >
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+                  </marker>
+                </defs>
+                <g fill="none" stroke="currentColor" stroke-width="1.2" marker-end="url(#arrow)">
+                  <path d="M125 15 V42" />
+                  <path d="M125 77 V105" />
+                  <path d="M125 140 V164" />
+                  <path d="M125 183 V201" />
+                  <path d="M125 25 H225 V174 H139" />
+                </g>
+                <g fill="#f9f6ef" stroke="currentColor">
+                  <rect x="65" y="42" width="120" height="35" rx="2" />
+                  <rect x="65" y="105" width="120" height="35" rx="2" />
+                  <circle cx="125" cy="174" r="11" />
+                </g>
+                <g
+                  fill="currentColor"
+                  font-family="Segoe UI, sans-serif"
+                  font-size="12"
+                  text-anchor="middle"
+                >
+                  <text x="125" y="64">weight layer</text>
+                  <text x="125" y="127">weight layer</text>
+                  <text x="125" y="179">+</text>
+                  <text x="148" y="96">ReLU</text>
+                  <text x="247" y="100">x</text>
+                  <text x="40" y="100">F(x)</text>
+                </g>
+              </svg>
+              <div class="paper-annotation">
+                <span>THE QUESTION</span>What changes when a network learns the residual?
+              </div>
+            </div>
+            <div class="brief-pane">
+              <span class="paper-caption">EXPERIMENT BRIEF</span>
+              <h3>Start with<br />something testable.</h3>
+              <dl>
+                <div>
+                  <dt>01 / Target</dt>
+                  <dd>A result worth checking</dd>
+                </div>
+                <div>
+                  <dt>02 / Method</dt>
+                  <dd>Run, retrain, or reimplement</dd>
+                </div>
+                <div>
+                  <dt>03 / Resources</dt>
+                  <dd>Defined by your experiment</dd>
+                </div>
+              </dl>
+              <a routerLink="/projects/new"
+                >Write your own brief <span aria-hidden="true">↗</span></a
+              >
+              <p>Briefs & revisions available.<br />Training execution is planned.</p>
+            </div>
+          </div>
+        </div>
       </aside>
     </div>
-    <nav class="section-index" aria-label="Explore PaperLab">
-      <a href="#work"><span>01</span>Your work</a
-      ><a href="#requirements"><span>02</span>Shape the experiment</a
-      ><a href="#architecture"><span>03</span>Under the hood</a
-      ><a href="#direction"><span>04</span>What comes next</a>
-    </nav>
+    <div class="hero-facts">
+      <span><strong>Paper-first</strong> A question before the code</span
+      ><span><strong>Your constraints</strong> No one-size-fits-all setup</span
+      ><span><strong>Every revision</strong> Keep the reasoning</span>
+    </div>
+  </section>
+
+  <section class="workflow-section" aria-labelledby="workflow-title">
+    <span class="section-tag">HOW IT WORKS</span>
+    <div class="workflow-heading">
+      <h2 id="workflow-title">From paper to<br /><em>a plan of your own.</em></h2>
+      <p>Same ideas. Different questions.<br />What will you investigate?</p>
+    </div>
+    <div class="workflow-grid">
+      <a href="#work"
+        ><span class="step-number">01</span><span class="step-icon" aria-hidden="true">▤</span>
+        <h3>Bring a paper</h3>
+        <p>Choose the method and the result you want to understand.</p>
+        <span class="step-arrow" aria-hidden="true">→</span></a
+      >
+      <a href="#requirements"
+        ><span class="step-number">02</span><span class="step-icon" aria-hidden="true">⊞</span>
+        <h3>Shape the setup</h3>
+        <p>Find the resources that fit your work, from CPU to hosted APIs.</p>
+        <span class="step-arrow" aria-hidden="true">→</span></a
+      >
+      <a routerLink="/projects/new"
+        ><span class="step-number">03</span><span class="step-icon" aria-hidden="true">▷</span>
+        <h3>Make a brief</h3>
+        <p>Set a target, choose a working mode, and capture your constraints.</p>
+        <span class="step-arrow" aria-hidden="true">→</span></a
+      >
+      <a routerLink="/projects"
+        ><span class="step-number">04</span><span class="step-icon" aria-hidden="true">⑂</span>
+        <h3>Make it yours</h3>
+        <p>Refine the plan and keep a record of what changed and why.</p></a
+      >
+    </div>
   </section>
 
   <section class="work-section" id="work" aria-labelledby="work-title">
     <div class="section-header">
       <div>
-        <span class="section-tag">01 / Your work</span>
+        <span class="section-tag">YOUR RESEARCH</span>
         <h2 id="work-title">Pick up where you left off.</h2>
       </div>
       <a class="plain-link" routerLink="/projects">All projects ↗</a>
     </div>
-    <p class="section-description">
-      The latest briefs in your local workspace. These are your saved projects, not sample results.
-    </p>
+    <p class="section-description">Your saved briefs, ready for the next question.</p>
     @if (loading()) {
       <p class="state-message" role="status">Loading your research briefs…</p>
     } @else if (error()) {
@@ -122,13 +222,13 @@
   <section class="requirements-section" id="requirements" aria-labelledby="requirements-title">
     <div class="section-header">
       <div>
-        <span class="section-tag">02 / Shape the experiment</span>
+        <span class="section-tag">THE EXPERIMENT SETUP</span>
         <h2 id="requirements-title">The method decides the requirements.</h2>
       </div>
     </div>
     <p class="section-description">
-      Explore the same resource catalogue used in the setup form. No assumed GPU, invented estimate,
-      or mandatory spending budget.
+      A classical ML baseline and a large-model experiment need different things. Choose a workload
+      to explore a starting point for yours.
     </p>
     <div class="requirements-explorer">
       <div class="workload-options" role="group" aria-label="Choose a workload">
@@ -171,7 +271,7 @@
   <section class="architecture-section" id="architecture" aria-labelledby="architecture-title">
     <div class="section-header">
       <div>
-        <span class="section-tag">03 / Under the hood</span>
+        <span class="section-tag">BUILT TO BE INSPECTED</span>
         <h2 id="architecture-title">A decision should leave a trace.</h2>
       </div>
       <a
@@ -224,7 +324,7 @@
 
   <section class="direction-section" id="direction" aria-labelledby="direction-title">
     <div>
-      <span class="section-tag">04 / What comes next</span>
+      <span class="section-tag">THE ROAD AHEAD</span>
       <h2 id="direction-title">Build toward evidence.<br />Keep the human in the loop.</h2>
       <p>
         The long-term goal is a workflow from paper to implementation to reproducible results. The

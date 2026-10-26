@@ -13,7 +13,7 @@ test('overview uses real catalog, explains source and hands workload to the form
   });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Good research starts');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Turn research');
   await expect(page.getByRole('link', { name: 'PaperLab home' })).toContainText('[p.]');
   await expect(page.locator('.first-brief')).toBeVisible();
   await page.screenshot({ path: info.outputPath('overview-desktop.png'), fullPage: true });

@@ -1602,3 +1602,90 @@ summary {
     scroll-behavior: auto !important;
   }
 }
+@media (min-width: 761px) {
+  .form-section {
+    min-height: 270px;
+  }
+}
+/* Shared paper-and-lab theme: the same visual language in every working screen. */
+:root {
+  --ink: #092b2b;
+  --muted: #586567;
+  --line: #deded3;
+  --paper: #faf8f2;
+  --accent: #bd482c;
+  --soft: #eeede4;
+  color: var(--ink);
+  background: #f8f6ef;
+}
+body {
+  background: radial-gradient(ellipse at 80% 0, #ece8d945, transparent 60%), #f8f6ef;
+}
+.masthead,
+.landing-shell .masthead {
+  border-bottom: 1px solid var(--line);
+}
+.masthead .notebook-link {
+  border-bottom: 0;
+  text-decoration: none;
+  padding: 10px 0;
+}
+.masthead .notebook-link:hover {
+  color: var(--accent);
+}
+.masthead .notebook-link:last-child {
+  background: #092b2b;
+  color: #fffaf0;
+  border-radius: 24px;
+  padding: 11px 18px;
+}
+.primary {
+  background: #092b2b;
+  border-color: #092b2b;
+  border-radius: 4px;
+}
+.primary:hover {
+  background: #164747;
+  border-color: #164747;
+}
+.notebook-heading h1,
+.page-heading h1,
+h1 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  letter-spacing: -1.4px;
+}
+.notebook-heading h1 {
+  font-size: 54px;
+}
+.form-section-heading h2,
+.panel h2,
+.empty-body h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+}
+.form-section-heading h2 {
+  font-size: 28px;
+}
+.mode-card {
+  border-radius: 4px;
+}
+input,
+select,
+textarea {
+  border-radius: 4px;
+}
+.workspace-footer {
+  font-size: 12px;
+}
+@media (max-width: 760px) {
+  .notebook-heading h1 {
+    font-size: 38px;
+  }
+  .masthead .notebook-link:last-child {
+    padding: 10px 13px;
+  }
+  .form-section-heading h2 {
+    font-size: 25px;
+  }
+}

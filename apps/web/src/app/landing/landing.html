@@ -1,15 +1,16 @@
 ﻿<div class="desk-home">
   <section class="introduction" aria-labelledby="intro-title">
     <div class="intro-index">
-      <span class="section-tag">A home for your next research question</span
-      ><span class="version-label">PAPERLAB / RESEARCH IN PROGRESS</span>
+      <span class="section-tag">YOUR INDEPENDENT RESEARCH DESK</span
+      ><span class="version-label">EST. FOR THE CURIOUS / 001</span>
     </div>
     <div class="intro-layout">
-      <div>
-        <h1 id="intro-title">Turn research<br />into your next<br /><em>experiment.</em></h1>
+      <div class="hero-copy">
+        <span class="hero-overline">LESS SCROLLING. MORE DISCOVERY.</span>
+        <h1 id="intro-title">Don’t just read<br />the paper.<br /><em>Question it.</em></h1>
         <p class="intro-description">
-          Read with a question. Plan with a purpose. Build a reproducible experiment from a machine
-          learning paper — one considered step at a time.
+          The best part of a paper is what you do next. Pick a claim, shape an experiment, and
+          follow your own line of inquiry.
         </p>
         <div class="intro-actions">
           <a class="action primary-action" routerLink="/projects/new"
@@ -19,96 +20,63 @@
           >
         </div>
       </div>
-      <aside class="lab-preview" aria-label="Illustrative research brief">
-        <span class="margin-note">01 / A paper is only the beginning</span>
-        <div class="preview-frame">
-          <div class="preview-toolbar">
-            <span class="preview-dot"></span> Research notebook <span>Illustrative brief</span>
-          </div>
-          <div class="preview-body">
-            <div class="paper-pane">
-              <span class="paper-caption">PAPER / COMPUTER VISION</span>
-              <h2>Deep Residual Learning<br />for Image Recognition</h2>
-              <p class="paper-byline">He et al. · 2015</p>
-              <svg
-                class="residual-diagram"
-                viewBox="0 0 280 205"
-                role="img"
-                aria-label="Residual block: two weight layers plus a skip connection"
-              >
-                <defs>
-                  <marker
-                    id="arrow"
-                    viewBox="0 0 10 10"
-                    refX="8"
-                    refY="5"
-                    markerWidth="5"
-                    markerHeight="5"
-                    orient="auto-start-reverse"
-                  >
-                    <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
-                  </marker>
-                </defs>
-                <g fill="none" stroke="currentColor" stroke-width="1.2" marker-end="url(#arrow)">
-                  <path d="M125 15 V42" />
-                  <path d="M125 77 V105" />
-                  <path d="M125 140 V164" />
-                  <path d="M125 183 V201" />
-                  <path d="M125 25 H225 V174 H139" />
-                </g>
-                <g fill="#18242e" stroke="currentColor">
-                  <rect x="65" y="42" width="120" height="35" rx="2" />
-                  <rect x="65" y="105" width="120" height="35" rx="2" />
-                  <circle cx="125" cy="174" r="11" />
-                </g>
-                <g
-                  fill="currentColor"
-                  font-family="Segoe UI, sans-serif"
-                  font-size="12"
-                  text-anchor="middle"
-                >
-                  <text x="125" y="64">weight layer</text>
-                  <text x="125" y="127">weight layer</text>
-                  <text x="125" y="179">+</text>
-                  <text x="148" y="96">ReLU</text>
-                  <text x="247" y="100">x</text>
-                  <text x="40" y="100">F(x)</text>
-                </g>
-              </svg>
-              <div class="paper-annotation">
-                <span>THE QUESTION</span>What changes when a network learns the residual?
-              </div>
-            </div>
-            <div class="brief-pane">
-              <span class="paper-caption">EXPERIMENT BRIEF</span>
-              <h3>Start with<br />something testable.</h3>
-              <dl>
-                <div>
-                  <dt>01 / Target</dt>
-                  <dd>A result worth checking</dd>
-                </div>
-                <div>
-                  <dt>02 / Method</dt>
-                  <dd>Run, retrain, or reimplement</dd>
-                </div>
-                <div>
-                  <dt>03 / Resources</dt>
-                  <dd>Defined by your experiment</dd>
-                </div>
-              </dl>
-              <a routerLink="/projects/new"
-                >Write your own brief <span aria-hidden="true">↗</span></a
-              >
-              <p>Briefs & revisions available.<br />Training execution is planned.</p>
-            </div>
-          </div>
+      <figure class="paper-stage" aria-label="Original ResNet research paper">
+        <div class="paper-stage-top">
+          <span>ON THE READING DESK</span><span>IEEE / CVPR 2016</span>
         </div>
-        <div class="preview-caption">
-          <span class="caption-cross" aria-hidden="true">+</span
-          ><span>Trace the idea. Question the method.</span
-          ><a href="#requirements">Design the experiment ↗</a>
+        <div class="paper-stack">
+          <div class="paper-underlay" aria-hidden="true"></div>
+          <a
+            class="original-paper"
+            href="https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open the original ResNet paper PDF"
+          >
+            <img
+              [src]="'/papers/resnet-cvpr-2016-page-' + paperPage() + '.webp'"
+              [alt]="
+                'Original page ' +
+                paperPage() +
+                ' of Deep Residual Learning for Image Recognition by He, Zhang, Ren and Sun'
+              "
+              width="1102"
+              height="1426"
+              fetchpriority="high"
+            />
+            <span class="paper-open">Read the original <span aria-hidden="true">↗</span></span>
+          </a>
+          <div class="margin-question">
+            <span>A QUESTION TO START WITH</span>
+            <p>What happens when<br />we change the constraints?</p>
+            <a href="#requirements">Explore your setup <span aria-hidden="true">↗</span></a>
+          </div>
+          <span class="paper-spine" aria-hidden="true">READ / QUESTION / REPRODUCE</span>
         </div>
-      </aside>
+        <figcaption>
+          <div>
+            <strong>Deep Residual Learning for Image Recognition</strong
+            ><span>He et al. · CVF open-access proceedings</span>
+          </div>
+          <div class="paper-pagination" role="group" aria-label="Preview original paper pages">
+            <button
+              type="button"
+              [attr.aria-pressed]="paperPage() === 1"
+              (click)="paperPage.set(1)"
+              aria-label="Preview page 1"
+            >
+              01</button
+            ><button
+              type="button"
+              [attr.aria-pressed]="paperPage() === 2"
+              (click)="paperPage.set(2)"
+              aria-label="Preview page 2"
+            >
+              02
+            </button>
+          </div>
+        </figcaption>
+      </figure>
     </div>
     <div class="hero-facts" aria-label="Workspace principles">
       <span><strong>Paper-first</strong> A question before the code</span
@@ -120,7 +88,9 @@
   <section class="workflow-section" aria-labelledby="workflow-title">
     <span class="section-tag">HOW IT WORKS</span>
     <div class="workflow-heading">
-      <h2 id="workflow-title">From paper to<br /><em>a plan of your own.</em></h2>
+      <h2 id="workflow-title">
+        A paper is a starting point.<br /><em>Here’s where you take it.</em>
+      </h2>
       <p>Same ideas. Different questions.<br />What will you investigate?</p>
     </div>
     <div class="workflow-grid">

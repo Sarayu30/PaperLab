@@ -20,6 +20,7 @@ export class Landing {
   readonly workloadKeys = Object.keys(workloads) as ResourcePlan['workload'][];
   readonly selectedWorkload = signal<ResourcePlan['workload']>('cpu');
   readonly selectedLayer = signal(0);
+  readonly paperPage = signal(1);
   readonly layers = [
     {
       name: 'The interface',

@@ -1186,7 +1186,6 @@ summary:hover {
 .landing-shell .masthead {
   margin: 0;
   padding: 0 5%;
-  background: #0d1014;
 }
 .landing-shell main {
   padding: 0;
@@ -1560,17 +1559,8 @@ summary {
 /* Dark research workspace. Native controls follow the same scheme. */
 :root {
   color-scheme: dark;
-  --ink: #eef0f3;
-  --muted: #a5afba;
-  --line: #2d3540;
-  --paper: #151b22;
   --accent: #ff8a69;
-  --soft: #1c242e;
-  background: #0d1014;
   color: var(--ink);
-}
-body {
-  background: radial-gradient(ellipse at 85% 4%, #23313c55, transparent 42%), #0d1014;
 }
 ::selection {
   background: #d9efa5;
@@ -1595,7 +1585,6 @@ button {
   color: #fff;
 }
 .masthead .notebook-link:last-child {
-  background: #202a34;
   color: #ecf1f5;
   border: 1px solid #45505d;
   border-radius: 7px;
@@ -1605,23 +1594,12 @@ button {
   background: #2d3944;
   border-color: #b7cb97;
 }
-.brand-symbol {
-  color: #ff8a69;
-}
 .brand {
   color: #f0f2f4;
 }
 .primary {
-  background: #d9efa5;
-  border-color: #d9efa5;
   border-radius: 6px;
-  color: #182016;
   box-shadow: 0 3px 18px #d9efa511;
-}
-.primary:hover {
-  background: #e8ffc0;
-  border-color: #e8ffc0;
-  color: #182016;
 }
 .button {
   border-radius: 6px;
@@ -1720,4 +1698,36 @@ textarea::placeholder {
   .form-section-heading h2 {
     font-size: 23px;
   }
+}
+/* Neutral charcoal lets original paper pages and annotations carry the color. */
+:root {
+  --ink: #f1eee5;
+  --muted: #afb3aa;
+  --line: #353b34;
+  --paper: #181d18;
+  --soft: #222921;
+  background: #10130f;
+}
+body {
+  background: radial-gradient(ellipse at 90% 12%, #343d2526, transparent 45%), #10130f;
+}
+.landing-shell .masthead {
+  background: transparent;
+}
+.brand-symbol {
+  color: #ff986e;
+}
+.masthead .notebook-link:last-child {
+  background: #242c20;
+  border-color: #4a5542;
+}
+.primary {
+  background: #f28b61;
+  border-color: #f28b61;
+  color: #201811;
+}
+.primary:hover {
+  background: #ffab86;
+  border-color: #ffab86;
+  color: #201811;
 }

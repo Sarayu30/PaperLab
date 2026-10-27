@@ -1,4 +1,4 @@
-﻿import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 test.setTimeout(60000);
 
@@ -13,9 +13,29 @@ test('overview uses real catalog, explains source and hands workload to the form
   });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Turn research');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Question it.');
   await expect(page.getByRole('link', { name: 'PaperLab home' })).toContainText('[p.]');
   await expect(page.locator('.first-brief')).toBeVisible();
+  const paper = page.locator('.original-paper img');
+  await expect(paper).toHaveAttribute('src', '/papers/resnet-cvpr-2016-page-1.webp');
+  await expect
+    .poll(() => paper.evaluate((image) => (image as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(1000);
+  await page.getByRole('button', { name: 'Preview page 2' }).click();
+  await expect(paper).toHaveAttribute('src', '/papers/resnet-cvpr-2016-page-2.webp');
+  await expect
+    .poll(() =>
+      paper.evaluate(
+        (image) =>
+          (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 1000,
+      ),
+    )
+    .toBeTruthy();
+  await expect(
+    page.getByRole('link', { name: 'Open the original ResNet paper PDF' }),
+  ).toHaveAttribute('href', /openaccess.thecvf.com.*paper.pdf$/);
+  await page.getByRole('button', { name: 'Preview page 1' }).click();
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: info.outputPath('overview-desktop.png'), fullPage: true });
   await page.screenshot({ path: info.outputPath('overview-first-screen.png') });
   await page.getByRole('button', { name: 'Hosted API experiment', exact: false }).click();

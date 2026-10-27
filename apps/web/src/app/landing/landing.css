@@ -956,7 +956,7 @@
   box-shadow: 0 5px 12px #0006;
   z-index: -1;
 }
-.original-paper {
+.sample-paper {
   position: relative;
   display: block;
   background: #fff;
@@ -968,32 +968,11 @@
     box-shadow 0.3s;
   text-decoration: none;
 }
-.original-paper:hover {
-  transform: rotate(-1deg) translateY(-5px);
-  box-shadow: 0 35px 65px #000a;
-}
-.original-paper img {
+.sample-paper svg {
   display: block;
   width: 100%;
   height: auto;
   aspect-ratio: 1102/1426;
-}
-.paper-open {
-  position: absolute;
-  bottom: 16px;
-  left: 16px;
-  right: 16px;
-  padding: 12px 14px;
-  background: #151d18f2;
-  color: #f5f4e8;
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  border: 1px solid #51604d;
-}
-.original-paper:focus-visible {
-  outline: 3px solid #ff986e;
-  outline-offset: 8px;
 }
 .margin-question {
   position: absolute;
@@ -1068,25 +1047,6 @@
   font-size: 10px;
   color: #a5aaa1;
   margin-top: 4px;
-}
-.paper-pagination {
-  display: flex;
-  gap: 5px;
-}
-.paper-pagination button {
-  width: 40px;
-  height: 40px;
-  border: 1px solid #485044;
-  background: transparent;
-  color: #d5d9cc;
-  font:
-    12px Consolas,
-    monospace;
-}
-.paper-pagination button[aria-pressed='true'] {
-  background: #e0e8d2;
-  color: #252e1d;
-  border-color: #e0e8d2;
 }
 .hero-facts > span {
   flex: initial;
@@ -1173,10 +1133,6 @@
   }
   .paper-stage figcaption {
     align-items: start;
-  }
-  .paper-pagination button {
-    width: 34px;
-    height: 38px;
   }
   .paper-stack {
     margin-right: 12px;

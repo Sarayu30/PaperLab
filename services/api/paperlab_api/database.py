@@ -5,12 +5,15 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.orm import DeclarativeBase
 
+from .config import load_settings
+
 
 class Base(DeclarativeBase):
     pass
 
 
 def database_url() -> str:
+    load_settings()
     return os.environ.get("PAPERLAB_DATABASE_URL", "sqlite:///./.data/paperlab.db")
 
 

@@ -14,10 +14,13 @@ def test_provider_validates_json_and_keeps_key_in_header(monkeypatch):
     def respond(request):
         assert request.headers["authorization"] == "Bearer test-secret"
         assert b"test-secret" not in request.content
-        return httpx.Response(200, json={
-            "choices": [{"message": {"content": '{"answer":"ok"}'}}],
-            "usage": {"total_tokens": 12},
-        })
+        return httpx.Response(
+            200,
+            json={
+                "choices": [{"message": {"content": '{"answer":"ok"}'}}],
+                "usage": {"total_tokens": 12},
+            },
+        )
 
     result, usage = GroqClient(httpx.MockTransport(respond)).generate("Answer", {}, Answer)
     assert result == {"answer": "ok"}
@@ -35,8 +38,15 @@ def test_provider_does_not_leak_error_body(monkeypatch, status):
 
 def test_provider_rejects_malformed_output(monkeypatch):
     monkeypatch.setenv("GROQ_API_KEY", "test-secret")
-    client = GroqClient(httpx.MockTransport(lambda _: httpx.Response(200, json={
-        "choices": [{"message": {"content": "not json"}}],
-    })))
+    client = GroqClient(
+        httpx.MockTransport(
+            lambda _: httpx.Response(
+                200,
+                json={
+                    "choices": [{"message": {"content": "not json"}}],
+                },
+            )
+        )
+    )
     with pytest.raises(ModelError, match="invalid response"):
         client.generate("Answer", {}, Answer)

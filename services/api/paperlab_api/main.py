@@ -7,9 +7,10 @@ from sqlalchemy import select, text, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from .database import database_url, make_engine
 from .config import groq_settings
+from .database import database_url, make_engine
 from .models import ContractRevision, Project
+from .research import ResearchService, research_router
 from .schemas import ProjectSetup, ProjectView, RevisionRequest, RevisionView
 
 
@@ -30,10 +31,13 @@ def view(project: Project, contract: ContractRevision) -> ProjectView:
 
 def create_app(url: str | None = None) -> FastAPI:
     engine = make_engine(url or database_url())
+    research = ResearchService(engine)
 
     @asynccontextmanager
     async def lifespan(_app):
+        research.recover()
         yield
+        research.close()
         engine.dispose()
 
     app = FastAPI(
@@ -43,6 +47,8 @@ def create_app(url: str | None = None) -> FastAPI:
         lifespan=lifespan,
     )
     app.state.engine = engine
+    app.state.research = research
+    app.include_router(research_router(research))
 
     @app.get("/ai/status")
     def ai_status():

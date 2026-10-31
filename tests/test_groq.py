@@ -27,7 +27,7 @@ def test_provider_validates_json_and_keeps_key_in_header(monkeypatch):
     assert usage["total_tokens"] == 12
 
 
-@pytest.mark.parametrize("status", [401, 403, 429, 500])
+@pytest.mark.parametrize("status", [401, 403, 413, 429, 500])
 def test_provider_does_not_leak_error_body(monkeypatch, status):
     monkeypatch.setenv("GROQ_API_KEY", "test-secret")
     client = GroqClient(httpx.MockTransport(lambda _: httpx.Response(status, text="test-secret")))

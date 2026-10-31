@@ -99,6 +99,11 @@ class GroqClient:
                 )
             if response.status_code == 429:
                 raise ModelError("Groq rate or token limit reached. Wait, then retry this step.")
+            if response.status_code == 413:
+                raise ModelError(
+                    "This request exceeds the Groq account's token limit. "
+                    "Use a shorter source or narrower project; waiting alone will not fix it."
+                )
             if response.status_code == 400:
                 error = response.json().get("error", {})
                 if error.get("code") == "json_validate_failed":

@@ -280,6 +280,7 @@ class ResearchService:
                 raise HTTPException(503, "GROQ_API_KEY is missing from the backend .env.")
             source = session.get(PaperSource, workspace.source_id)
             context = {
+                "current_stage": stage,
                 "contract": setup,
                 "paper_name": source.name,
                 "source_id": source.id,
@@ -295,15 +296,21 @@ class ResearchService:
             }
             for name, run_id in workspace.artifacts.items():
                 previous = session.get(AgentRun, run_id).output
-                # Keep full generated code for review; other stages get concise summaries.
+                # Only code review/chat need full source. Avoid drowning result evidence in code.
+                full = (
+                    (name == "implementation" and stage in {"review", "chat"})
+                    or (name == "plan" and stage in {"implementation", "review", "chat"})
+                    or (stage in {"results", "report"} and name in {"analysis", "results"})
+                )
                 context["prior_artifacts"][name] = (
                     previous
-                    if name in {"plan", "implementation"}
+                    if full
                     else {
                         "summary": previous.get("summary"),
                         "warnings": previous.get("warnings", []),
                     }
                 )
+            context["current_assignment"] = PROMPTS[stage]
             if stage == "chat":
                 recent_chat = list(
                     session.scalars(
@@ -454,6 +461,11 @@ class ResearchService:
             output["warnings"].append(
                 "AI draft based on selected text excerpts; figures and omitted text may be missing."
             )
+            if stage in {"results", "report"}:
+                output["warnings"].append(
+                    "Submitted metrics are self-reported. "
+                    "PaperLab has not executed or verified them."
+                )
             failure = ""
         except ModelError as exc:
             output, usage, failure = {}, {}, str(exc)

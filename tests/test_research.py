@@ -229,7 +229,13 @@ def test_results_require_real_input_and_revision_clears_evidence(research):
         },
     ).json()
     assert snapshot["evidence"]["provenance"] == "self-reported"
-    run_step(client, root, "results")
+    results = run_step(client, root, "results")
+    with Session(client.app.state.engine) as session:
+        saved = session.get(AgentRun, results["artifacts"]["results"]["id"])
+        assert saved.context["current_stage"] == "results"
+        assert "files" not in saved.context["prior_artifacts"]["implementation"]
+        assert saved.context["self_reported_evidence"]["metrics"] == {"accuracy": 0.8}
+        assert any("self-reported" in warning for warning in saved.output["warnings"])
     changed = client.post(
         root + "/feedback",
         json={

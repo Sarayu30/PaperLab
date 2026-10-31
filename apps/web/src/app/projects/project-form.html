@@ -64,7 +64,10 @@
             placeholder="https://arxiv.org/abs/..."
             maxlength="2048"
             [attr.aria-invalid]="invalid('paper_url')"
-          /><small>A link to the paper. Reading and PDF upload will be added next.</small>
+          /><small
+            >A link to the paper. Import it or upload a PDF in the research workspace after
+            saving.</small
+          >
           @if (invalid('paper_url')) {
             <small class="field-error">Enter a valid http or https URL.</small>
           }
@@ -284,7 +287,7 @@
         </details>
         <p class="quiet-note">
           Blank means unknown; 0 is an explicit zero. Changing the kind of work keeps your added
-          fields. These are recorded requirements, not enforced limits.
+          fields. Assistant budgets gate estimated Groq usage; compute requirements are recorded for your runtime.
         </p>
       </section>
       @if (id) {

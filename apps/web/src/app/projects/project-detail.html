@@ -22,10 +22,16 @@
   <div class="milestone-note">
     <span class="accent-label">SETUP SAVED</span>
     <p>
-      Your target and limits are recorded. No paper analysis, model calls, or experiments have
-      started.
+      Your brief is saved. Open the research workspace to attach a paper, run AI stages, and steer
+      the work.
     </p>
   </div>
+  <a
+    class="button primary"
+    style="margin-bottom: 24px"
+    [routerLink]="['/projects', p.id, 'research']"
+    >Open research workspace →</a
+  >
   <div class="detail-grid">
     <section class="panel target-panel">
       <div class="section-heading">
@@ -71,7 +77,9 @@
           <dd>{{ environments[p.setup.resource_plan.environment] }}</dd>
         </div>
       </dl>
-      <p class="quiet-note">Preferences for future work. No agents are running.</p>
+      <p class="quiet-note">
+        These preferences guide the AI workflow. Training takes place in your chosen environment.
+      </p>
     </section>
   </div>
   <section class="panel resource-record">

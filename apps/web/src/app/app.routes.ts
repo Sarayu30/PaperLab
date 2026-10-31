@@ -23,6 +23,11 @@ export const routes: Routes = [
     loadComponent: () => import('./projects/project-form').then((m) => m.ProjectForm),
   },
   {
+    path: 'projects/:id/research',
+    title: 'Research workspace · PaperLab',
+    loadComponent: () => import('./research/research').then((m) => m.Research),
+  },
+  {
     path: 'projects/:id',
     title: 'Project · PaperLab',
     loadComponent: () => import('./projects/project-detail').then((m) => m.ProjectDetail),

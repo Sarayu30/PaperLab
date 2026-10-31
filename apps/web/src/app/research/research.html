@@ -1,0 +1,469 @@
+<a class="back-link" [routerLink]="['/projects', id]">← Experiment brief</a>
+<header class="research-heading">
+  <div>
+    <p class="eyebrow">Research workspace</p>
+    <h1>{{ project()?.setup?.name || 'Loading your research…' }}</h1>
+    <p class="muted">Paper → plan → code → review. Your decisions stay in the loop.</p>
+  </div>
+  @if (provider(); as p) {
+    <span class="provider" [class.missing]="!p.configured"
+      >{{ p.configured ? 'Groq configured' : 'Groq key missing' }}<small>{{ p.model }}</small></span
+    >
+  }
+</header>
+@if (error()) {
+  <div class="error-message" role="alert">
+    <p>{{ error() }}</p>
+    <button class="button secondary" (click)="load()" [disabled]="busy()">Refresh workspace</button>
+  </div>
+}
+@if (notice()) {
+  <p class="notice" role="status">{{ notice() }}</p>
+}
+@if (workspace(); as w) {
+  <div class="workspace-controls">
+    <span
+      >Brief r{{ w.project_revision }} · Workspace v{{ w.version }} ·
+      {{ w.total_tokens | number }} tokens in recent history</span
+    >
+    <a class="button secondary" [href]="'/api/projects/' + id + '/research/export'"
+      >Download project ZIP ↓</a
+    >
+  </div>
+  <p class="execution-note">
+    AI generates drafts and performs static review. Training runs in your chosen environment;
+    uploaded metrics are self-reported. Exports include source files, a notebook for Colab/Kaggle,
+    and provenance.
+  </p>
+  @if (running(); as active) {
+    <div class="run-status" role="status">
+      <div>
+        <span class="activity-dot"></span><strong>{{ stageName(active.stage) }}</strong> ·
+        {{ active.status
+        }}<small>This step is saved on the backend. You can refresh this page.</small>
+      </div>
+      <button class="button secondary" (click)="cancel()" [disabled]="busy()">
+        Stop this step
+      </button>
+    </div>
+  }
+  @if (project()?.setup?.control_mode === 'autonomous') {
+    <div class="autonomy">
+      <div>
+        <strong>Autonomous within limits</strong>
+        <p>
+          Continue through the AI stages while this tab is open. Model calls respect the recorded
+          assistant budget estimate; this does not launch training.
+        </p>
+      </div>
+      @if (auto()) {
+        <button class="button secondary" (click)="auto.set(false)">Pause after this step</button>
+      } @else {
+        <button
+          class="button primary"
+          (click)="continueWorkflow()"
+          [disabled]="busy() || !!w.active_run || !nextStage() || !provider()?.configured"
+        >
+          Continue workflow
+        </button>
+      }
+    </div>
+  }
+  <div class="research-layout">
+    <nav class="stage-nav" aria-label="Research stages">
+      <button [class.selected]="selected() === 'source'" (click)="selected.set('source')">
+        <span>00</span>
+        <div>
+          Paper source<small>{{ w.source ? 'Attached' : 'Start here' }}</small>
+        </div>
+      </button>
+      @for (stage of stages; track stage.id; let i = $index) {
+        <button [class.selected]="selected() === stage.id" (click)="selected.set(stage.id)">
+          <span>0{{ i + 1 }}</span>
+          <div>
+            {{ stage.name
+            }}<small>{{
+              w.artifacts[stage.id]
+                ? 'Draft ready'
+                : running()?.stage === stage.id
+                  ? 'Working…'
+                  : stage.role
+            }}</small>
+          </div>
+        </button>
+      }
+      <div class="nav-divider"></div>
+      <button [class.selected]="selected() === 'evidence'" (click)="selected.set('evidence')">
+        Record run metrics
+      </button>
+      <button [class.selected]="selected() === 'chat'" (click)="selected.set('chat')">
+        Ask about the paper
+      </button>
+      <button [class.selected]="selected() === 'history'" (click)="selected.set('history')">
+        Activity & usage
+      </button>
+    </nav>
+    <div class="research-content">
+      @if (selected() === 'source') {
+        <section class="research-panel">
+          <p class="eyebrow">Evidence before inference</p>
+          <h2>Bring the actual paper.</h2>
+          <p class="muted">
+            Attach a text-based PDF, import the saved paper URL, or paste its text. Paper excerpts,
+            your brief, feedback and current artifacts are sent to Groq when you run an AI step.
+          </p>
+          <div class="source-actions">
+            <button class="button secondary" (click)="importUrl()" [disabled]="busy()">
+              Import saved paper URL</button
+            ><label class="upload-label"
+              >Upload PDF<input
+                type="file"
+                accept=".pdf,application/pdf"
+                (change)="upload($event)"
+                [disabled]="busy()"
+            /></label>
+          </div>
+          <p class="muted small">
+            URL import: arXiv, CVF or OpenReview. PDF: up to 10 MB / 80 pages. Scanned PDFs need
+            text extraction first.
+          </p>
+          <details [open]="!w.source">
+            <summary>Paste paper text</summary>
+            <label for="paper-name">Source name</label
+            ><input
+              id="paper-name"
+              [(ngModel)]="paperName"
+              placeholder="Paper title or excerpt name"
+              maxlength="200"
+            /><label for="paper-text">Paper text</label
+            ><textarea
+              id="paper-text"
+              [(ngModel)]="paperText"
+              rows="9"
+              placeholder="Paste the abstract and methodology, or the full paper text."
+              maxlength="200000"
+            ></textarea
+            ><button
+              class="button primary"
+              (click)="pastePaper()"
+              [disabled]="busy() || paperText.trim().length < 100"
+            >
+              Save paper text
+            </button>
+          </details>
+          @if (w.source; as source) {
+            <div class="source-record">
+              <strong>{{ source.name }}</strong>
+              <p>
+                {{ source.pages.length }} extracted page(s) · Source fingerprint
+                {{ source.digest.slice(0, 12) }}
+              </p>
+              <p class="small muted">
+                Replacing the source invalidates its AI outputs. Previous runs remain in activity
+                history.
+              </p>
+              <label for="source-page">Read extracted page</label
+              ><select
+                id="source-page"
+                [ngModel]="selectedPage()"
+                (ngModelChange)="selectedPage.set(+$event)"
+              >
+                @for (page of source.pages; track page.page) {
+                  <option [value]="page.page">Page {{ page.page }}</option>
+                }
+              </select>
+              <pre class="source-text">{{ sourcePage()?.text }}</pre>
+              <button class="button primary" (click)="selected.set('analysis')">
+                Go to paper analysis →
+              </button>
+            </div>
+          }
+        </section>
+      } @else if (selected() === 'history') {
+        <section class="research-panel">
+          <h2>Activity & model usage</h2>
+          <p class="muted">
+            Latest 100 requests. Cancelled and superseded outputs stay in history but do not become
+            current artifacts. Dollar amounts are list-price estimates, not Groq invoices.
+          </p>
+          @for (run of w.runs; track run.id) {
+            <article class="history-run">
+              <div>
+                <strong>{{ stageName(run.stage) }}</strong
+                ><span class="run-badge">{{ run.status }}</span>
+              </div>
+              <p class="muted small">
+                {{ run.created_at | date: 'medium' }} · brief r{{ run.project_revision }} /
+                workspace v{{ run.workspace_version }}
+              </p>
+              @if (run.message) {
+                <p class="prose">{{ run.message }}</p>
+              }
+              @if (run.error) {
+                <p class="failure">{{ run.error }}</p>
+              }
+              <p class="small">
+                {{ run.usage.model || 'Groq' }} · {{ run.usage.total_tokens || 0 }} tokens ·
+                {{ run.usage.estimated_usd !== undefined ? 'Estimated' : 'Reserved' }} ${{
+                  run.usage.estimated_usd ?? run.usage.reserved_usd ?? 0 | number: '1.4-6'
+                }}
+              </p>
+              @if (run.output.summary) {
+                <details>
+                  <summary>Read archived output</summary>
+                  <p class="prose">{{ run.output.summary }}</p>
+                  @for (section of run.output.sections || []; track $index) {
+                    <h3>{{ section.heading }}</h3>
+                    <p class="prose">{{ section.body }}</p>
+                  }
+                </details>
+              }
+              @if (run.feedback) {
+                <details>
+                  <summary>Feedback used for this request</summary>
+                  <p class="prose">{{ run.feedback }}</p>
+                </details>
+              }
+            </article>
+          } @empty {
+            <p class="muted">No model calls yet.</p>
+          }
+        </section>
+      } @else if (selected() === 'evidence') {
+        <section class="research-panel">
+          <p class="eyebrow">After running the exported project</p>
+          <h2>Record real results.</h2>
+          <p class="muted">
+            Paste metrics from your local, Colab or Kaggle run. PaperLab records these as
+            self-reported evidence; it cannot verify the runtime.
+          </p>
+          <label for="metrics">Metrics JSON</label
+          ><textarea
+            id="metrics"
+            rows="5"
+            [(ngModel)]="metrics"
+            placeholder='{"accuracy": 0.91, "training_seconds": 120}'
+          ></textarea>
+          <label for="hardware">Hardware used</label
+          ><input id="hardware" [(ngModel)]="hardware" placeholder="CPU / GPU model and memory" />
+          <label for="command">Command executed</label
+          ><input
+            id="command"
+            [(ngModel)]="command"
+            placeholder="python -m src.train --config config.json"
+          />
+          <label for="evidence-notes">Run notes, seeds, splits and differences</label
+          ><textarea id="evidence-notes" rows="5" [(ngModel)]="evidenceNotes"></textarea>
+          <button
+            class="button primary"
+            (click)="saveEvidence()"
+            [disabled]="busy() || !metrics.trim() || !hardware.trim() || !command.trim()"
+          >
+            Save run metrics
+          </button>
+          @if (w.evidence.metrics) {
+            <p class="notice">
+              Self-reported evidence is saved. “Compare results” can now use it after the static
+              review.
+            </p>
+          }
+        </section>
+      } @else if (selected() === 'chat') {
+        <section class="research-panel">
+          <p class="eyebrow">Learning & clarification</p>
+          <h2>Ask the paper.</h2>
+          <p class="muted">
+            Answers use your source excerpts and current artifacts. To change the work, use the
+            feedback form below.
+          </p>
+          @for (chat of chats(); track chat.id) {
+            <article class="chat-turn">
+              <strong>You</strong>
+              <p class="prose">{{ chat.message }}</p>
+              <strong>PaperLab · {{ chat.status }}</strong>
+              <p class="prose">
+                {{ chat.output.summary || chat.error || 'Working on your question…' }}
+              </p>
+              @for (section of chat.output.sections || []; track $index) {
+                <h3>{{ section.heading }}</h3>
+                <p class="prose">{{ section.body }}</p>
+              }
+              @for (citation of chat.output.citations || []; track $index) {
+                <blockquote>
+                  {{ citation.quote
+                  }}<button class="text-button" (click)="showCitation(citation.page)">
+                    Read source page {{ citation.page }}
+                  </button>
+                </blockquote>
+              }
+            </article>
+          }
+          <label for="question">Your question</label
+          ><textarea
+            id="question"
+            rows="3"
+            [(ngModel)]="question"
+            maxlength="5000"
+            placeholder="Explain the loss function and where it appears in the paper."
+          ></textarea
+          ><button
+            class="button primary"
+            (click)="run('chat', question)"
+            [disabled]="busy() || !!blockReason('chat') || !question.trim()"
+          >
+            Ask Groq
+          </button>
+          <p class="muted small">{{ blockReason('chat') }}</p>
+        </section>
+      } @else {
+        @for (stage of stages; track stage.id) {
+          @if (selected() === stage.id) {
+            <section class="research-panel">
+              <div class="artifact-heading">
+                <div>
+                  <p class="eyebrow">{{ stage.role }}</p>
+                  <h2>{{ stage.name }}</h2>
+                </div>
+                @if (!current()) {
+                  <button
+                    class="button primary"
+                    (click)="run(stage.id)"
+                    [disabled]="busy() || !!blockReason(stage.id)"
+                  >
+                    Run this step
+                  </button>
+                }
+              </div>
+              @if (latestAttempt()?.error) {
+                <p class="error-message" role="alert">{{ latestAttempt()?.error }}</p>
+              }
+              @if (!current()) {
+                <p class="muted">
+                  {{
+                    blockReason(stage.id) ||
+                      'Ready. Run this step to generate a draft using the current paper and brief.'
+                  }}
+                </p>
+              }
+              @if (current(); as artifact) {
+                <p class="artifact-title">{{ artifact.output.title }}</p>
+                <p class="prose summary">{{ artifact.output.summary }}</p>
+                @for (section of artifact.output.sections || []; track $index) {
+                  <h3>{{ section.heading }}</h3>
+                  <p class="prose">{{ section.body }}</p>
+                }
+                @if (artifact.output.tasks?.length) {
+                  <h3>Implementation checklist</h3>
+                  <ol class="task-list">
+                    @for (task of artifact.output.tasks; track task.id) {
+                      <li>
+                        <strong>{{ task.title }}</strong>
+                        <p>{{ task.description }}</p>
+                        <p class="small muted">Done when: {{ task.acceptance }}</p>
+                        @if (task.depends_on.length) {
+                          <small>Depends on: {{ task.depends_on.join(', ') }}</small>
+                        }
+                      </li>
+                    }
+                  </ol>
+                }
+                @if (selected() === 'plan') {
+                  <div class="approval">
+                    <p>
+                      {{
+                        w.approved_plan === artifact.id
+                          ? 'You approved this exact plan.'
+                          : 'Review the tasks and assumptions. Approval applies to this plan version only.'
+                      }}
+                    </p>
+                    <button
+                      class="button primary"
+                      (click)="approve()"
+                      [disabled]="busy() || !!w.active_run || w.approved_plan === artifact.id"
+                    >
+                      {{ w.approved_plan === artifact.id ? 'Plan approved' : 'Approve this plan' }}
+                    </button>
+                  </div>
+                }
+                @if (artifact.output.files?.length) {
+                  <h3>Generated files · not executed</h3>
+                  @for (file of artifact.output.files; track file.path) {
+                    <details class="generated-file">
+                      <summary>{{ file.path }}</summary>
+                      <button class="text-button" (click)="downloadFile(file.path, file.content)">
+                        Download file ↓
+                      </button>
+                      <pre><code>{{ file.content }}</code></pre>
+                    </details>
+                  }
+                }
+                @if (artifact.output.citations?.length) {
+                  <h3>Source quotes</h3>
+                  <p class="muted small">
+                    Quotes are checked against the supplied text. Their presence does not verify the
+                    model’s interpretation.
+                  </p>
+                  @for (citation of artifact.output.citations; track $index) {
+                    <blockquote>
+                      {{ citation.quote
+                      }}<button class="text-button" (click)="showCitation(citation.page)">
+                        Read source page {{ citation.page }}
+                      </button>
+                    </blockquote>
+                  }
+                }
+                @for (warning of artifact.output.warnings || []; track $index) {
+                  <p class="artifact-warning">{{ warning }}</p>
+                }
+                @if (nextStage(); as next) {
+                  <button class="button secondary next-step" (click)="selected.set(next)">
+                    Next: {{ stageName(next) }} →
+                  </button>
+                }
+              }
+            </section>
+          }
+        }
+      }
+      <section class="feedback-panel">
+        <div>
+          <p class="eyebrow">You steer the research</p>
+          <h2>Change direction.</h2>
+          <p class="muted">
+            Feedback invalidates the selected stage and downstream artifacts, then regenerates that
+            stage when prerequisites are ready. Earlier work and history are preserved.
+          </p>
+        </div>
+        <div>
+          <label for="feedback-stage">Apply feedback starting at</label
+          ><select id="feedback-stage" [(ngModel)]="feedbackStage">
+            @for (stage of stages; track stage.id) {
+              <option [value]="stage.id">{{ stage.name }}</option>
+            }
+          </select>
+          <label for="feedback-text">What should change?</label
+          ><textarea
+            id="feedback-text"
+            [(ngModel)]="feedbackText"
+            rows="4"
+            maxlength="5000"
+            placeholder="Use a smaller CPU-only baseline. Keep the original evaluation metric."
+          ></textarea
+          ><button
+            class="button primary"
+            (click)="applyFeedback()"
+            [disabled]="busy() || feedbackText.trim().length < 3 || !w.source"
+          >
+            Apply feedback & regenerate
+          </button>
+          @if (w.feedback) {
+            <details>
+              <summary>Saved human instructions</summary>
+              <p class="prose">{{ w.feedback }}</p>
+            </details>
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+}

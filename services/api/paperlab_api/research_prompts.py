@@ -32,7 +32,9 @@ Never insert fabricated results or hard-coded benchmark scores. No ellipses, TOD
 fake training, or fake evaluation. If critical details are absent, state the blocker honestly and
 provide the feasible portion. Keep the project within 12 files and the output token allowance.
 Use relative paths such as src/model.py. These files are exported for human execution,
-never run here.""",
+never run here. For this stage, return tasks=[] and keep summary and sections very brief.
+Spend the output allowance on complete files. Include each file exactly once in one files array.
+Return README.md, requirements.txt or pyproject.toml, and working Python source together.""",
     "review": """Act as an independent methodology reviewer. Compare generated files to the paper,
 plan, and feedback. Identify concrete defects, omitted steps, data leakage risks,
 unsupported claims,

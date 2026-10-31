@@ -50,3 +50,28 @@ def test_provider_rejects_malformed_output(monkeypatch):
     )
     with pytest.raises(ModelError, match="invalid response"):
         client.generate("Answer", {}, Answer)
+
+
+def test_gpt_oss_uses_strict_schema_and_rejects_duplicate_fields(monkeypatch):
+    monkeypatch.setenv("GROQ_API_KEY", "test-secret")
+    monkeypatch.setenv("GROQ_MODEL", "openai/gpt-oss-20b")
+
+    def respond(request):
+        import json
+
+        payload = json.loads(request.content)
+        schema = payload["response_format"]["json_schema"]
+        assert schema["strict"] is True
+        assert schema["schema"]["additionalProperties"] is False
+        assert schema["schema"]["required"] == ["answer"]
+        return httpx.Response(
+            200,
+            json={
+                "choices": [
+                    {"message": {"content": '{"answer":"first","answer":"silently replaced"}'}}
+                ]
+            },
+        )
+
+    with pytest.raises(ModelError, match="invalid response"):
+        GroqClient(httpx.MockTransport(respond)).generate("Answer", {}, Answer)

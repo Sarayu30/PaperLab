@@ -15,5 +15,5 @@ def load_settings() -> None:
 def groq_settings() -> tuple[str, str]:
     load_settings()
     return os.getenv("GROQ_API_KEY", "").strip(), os.getenv(
-        "GROQ_MODEL", "openai/gpt-oss-20b"
+        "GROQ_MODEL", "openai/gpt-oss-120b"
     ).strip()

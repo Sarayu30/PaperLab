@@ -12,6 +12,42 @@ class ModelError(Exception):
     pass
 
 
+def strict_schema(value):
+    """Use Groq's supported structural schema; retain all semantic checks locally."""
+    if isinstance(value, list):
+        return [strict_schema(item) for item in value]
+    if not isinstance(value, dict):
+        return value
+    result = {
+        key: strict_schema(item)
+        for key, item in value.items()
+        if key
+        not in {
+            "default",
+            "minLength",
+            "maxLength",
+            "minItems",
+            "maxItems",
+            "minimum",
+            "maximum",
+            "pattern",
+        }
+    }
+    if result.get("type") == "object":
+        result["additionalProperties"] = False
+        result["required"] = list(result.get("properties", {}))
+    return result
+
+
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("Duplicate response field")
+        result[key] = value
+    return result
+
+
 class GroqClient:
     def __init__(self, transport=None):
         self.transport = transport
@@ -21,7 +57,16 @@ class GroqClient:
         if not key:
             raise ModelError("Set GROQ_API_KEY in the project .env, then restart the API.")
         response_format = {"type": "json_object"}
-        # JSON-object mode also supports user-selected Groq models without strict-schema support.
+        if model in {"openai/gpt-oss-20b", "openai/gpt-oss-120b"}:
+            response_format = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "paperlab_output",
+                    "strict": True,
+                    "schema": strict_schema(schema.model_json_schema()),
+                },
+            }
+        # Other user-selected models retain JSON mode and the same local validation.
         instructions = (
             system
             + "\nReturn only JSON matching this schema:\n"
@@ -37,6 +82,8 @@ class GroqClient:
             "temperature": 0.2,
             "max_completion_tokens": 6000,
         }
+        if model in {"openai/gpt-oss-20b", "openai/gpt-oss-120b"}:
+            payload["reasoning_effort"] = "low"
         try:
             with httpx.Client(
                 timeout=httpx.Timeout(150, connect=15), transport=self.transport, trust_env=False
@@ -52,6 +99,13 @@ class GroqClient:
                 )
             if response.status_code == 429:
                 raise ModelError("Groq rate or token limit reached. Wait, then retry this step.")
+            if response.status_code == 400:
+                error = response.json().get("error", {})
+                if error.get("code") == "json_validate_failed":
+                    raise ModelError(
+                        "The model did not produce valid structured output. "
+                        "Narrow the task and retry; no artifact was accepted."
+                    )
             if response.status_code >= 400:
                 raise ModelError(
                     f"Groq returned HTTP {response.status_code}. "
@@ -61,7 +115,9 @@ class GroqClient:
             choice = data["choices"][0]
             if choice.get("finish_reason") == "length":
                 raise ModelError("The model output was truncated. Narrow the task and retry.")
-            result = schema.model_validate_json(choice["message"]["content"])
+            result = schema.model_validate(
+                json.loads(choice["message"]["content"], object_pairs_hook=unique_object)
+            )
             usage = data.get("usage", {})
             return result.model_dump(mode="json"), {
                 "model": model,

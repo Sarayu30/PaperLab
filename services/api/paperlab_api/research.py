@@ -3,6 +3,7 @@
 Run one API process. Generated code is never executed by the API process.
 """
 
+import ast
 import io
 import json
 import re
@@ -406,6 +407,31 @@ class ResearchService:
                 raise ModelError(
                     "The implementation contained no files. Add missing details and retry."
                 )
+            if stage == "implementation":
+                files = {file["path"]: file["content"] for file in output["files"]}
+                if (
+                    not files.get("README.md", "").strip()
+                    or not any(
+                        files.get(name, "").strip()
+                        for name in ("requirements.txt", "pyproject.toml")
+                    )
+                    or not any(
+                        name.endswith(".py") and content.strip() for name, content in files.items()
+                    )
+                ):
+                    raise ModelError(
+                        "The code draft is incomplete: README.md, Python source and a dependency "
+                        "file are required. Narrow the scope and retry; no artifact was accepted."
+                    )
+                for name, content in files.items():
+                    if name.endswith(".py"):
+                        try:
+                            ast.parse(content, filename=name)
+                        except SyntaxError as exc:
+                            raise ModelError(
+                                "The generated Python failed syntax validation. "
+                                "Retry this step; no code was executed."
+                            ) from exc
             if stage != "implementation":
                 output["files"] = []
             valid_citations = []

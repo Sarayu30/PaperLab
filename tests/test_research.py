@@ -30,7 +30,11 @@ class FakeProvider:
                     "acceptance": "Split sizes match",
                 }
             ],
-            "files": [{"path": "src/model.py", "content": "def predict(x):\n    return x\n"}],
+            "files": [
+                {"path": "src/model.py", "content": "def predict(x):\n    return x\n"},
+                {"path": "README.md", "content": "Fixture instructions"},
+                {"path": "requirements.txt", "content": "# Standard library only"},
+            ],
             "warnings": [],
         }, {"model": "test", "prompt_tokens": 100, "completion_tokens": 100, "total_tokens": 200}
 
@@ -353,3 +357,42 @@ def test_invalid_citation_is_removed(research):
     output = run_step(client, root, "analysis")["artifacts"]["analysis"]["output"]
     assert output["citations"] == []
     assert any("removed" in warning for warning in output["warnings"])
+
+
+@pytest.mark.parametrize("defect", ["missing_files", "invalid_python"])
+def test_incomplete_or_invalid_code_does_not_become_an_artifact(research, defect):
+    client, _, root = research
+    run_step(client, root, "analysis")
+    state = run_step(client, root, "plan")
+    client.post(
+        root + "/approve",
+        json={"expected_version": state["version"], "plan_id": state["artifacts"]["plan"]["id"]},
+    )
+
+    class BrokenCodeProvider(FakeProvider):
+        def generate(self, *args):
+            output, usage = super().generate(*args)
+            if defect == "missing_files":
+                output["files"] = output["files"][:1]
+            else:
+                output["files"][0]["content"] = "def broken(\n"
+            return output, usage
+
+    client.app.state.research.provider = BrokenCodeProvider()
+    response = client.post(
+        root + "/runs",
+        json={
+            "expected_version": state["version"],
+            "stage": "implementation",
+            "request_id": str(uuid4()),
+        },
+    )
+    assert response.status_code == 202
+    for _ in range(100):
+        state = client.get(root).json()
+        if not state["active_run"]:
+            break
+        time.sleep(0.01)
+    assert "implementation" not in state["artifacts"]
+    assert state["runs"][0]["status"] == "failed"
+    assert "incomplete" in state["runs"][0]["error"] or "syntax" in state["runs"][0]["error"]

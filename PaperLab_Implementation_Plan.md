@@ -370,6 +370,24 @@ The writer revises the narrative without altering raw results. The application p
 
 ## 10 Implementation sequence
 
+### Implemented foundation — 31 October 2026
+
+The Angular/FastAPI repository now contains a local Groq research workspace: bounded paper intake,
+analysis, planning, exact-plan approval, code drafts, static review, results commentary, extension
+proposals, reports and chat. Human feedback invalidates affected downstream artifacts and revokes
+outdated approval. Sources, run snapshots, usage estimates and revisions persist in the database.
+Exports include generated files, a handoff notebook, provenance and a Markdown report.
+
+This foundation uses a deterministic stage controller and scoped prompts, not LangGraph or Deep
+Agents yet. Autonomous chaining runs while the browser tab remains open. Interrupted provider
+calls need explicit retry. The API never executes generated code; training, platform adapters,
+independent metric verification, execution budget enforcement and authenticated deployment remain
+future milestones. Current assistant dollar caps use provider list-price estimates, not invoices.
+
+The default Groq model is GPT-OSS 120B. Structured outputs, task-graph validation, required project
+files and Python syntax checks reject malformed drafts. These checks do not certify reproductions.
+See `docs/ai-workflow.md` for the implemented behavior and `README.md` for the manual walkthrough.
+
 Build complete vertical slices so that each milestone demonstrates working behavior. The following six to eight week sequence is a planning estimate for one developer already comfortable with Python, web APIs, and ML tooling. It assumes accessible models and compute; it is not a delivery guarantee.
 
 | Milestone | Implementation work | Acceptance gate |

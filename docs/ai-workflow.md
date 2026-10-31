@@ -102,6 +102,22 @@ using controlled provider responses; existing brief tests use a real local API. 
 checks use an isolated database and a clearly fictional small methodology, not a real benchmark.
 Synthetic metrics in that check test data flow only and must not be treated as experimental evidence.
 
+Validation on 31 October 2026:
+
+- 53 backend tests passed; Ruff passed and the locked dependency sync succeeded.
+- The existing eight browser scenarios and four research-workspace scenarios passed. Research
+  scenarios use controlled API responses to test guided approval, feedback, cancellation,
+  missing-key behavior, mobile layout and provider-error retry.
+- The Angular production build passed with the existing landing CSS size warning.
+- A live isolated Groq walkthrough completed all eight role types, plan regeneration after
+  feedback, exact-plan approval, code syntax validation and ZIP export. GPT-OSS 20B returned
+  incomplete code in early checks; GPT-OSS 120B completed the small starter project and is now
+  the default. This is a connectivity/integration check, not evidence of broad model reliability.
+- Live provider failures exposed malformed output, incomplete files, account rate limits and
+  oversized context. Validation, focused stage context and actionable error messages cover
+  those cases. Large or ambiguous papers can still require a narrower scope or manual fixes.
+- No generated training code was executed and no real paper result was reproduced in this check.
+
 Next work: sandboxed execution, real data/environment checks, persisted autonomous dispatch,
 independent evaluation, full-paper retrieval and authenticated multi-user operation. The original
 LangGraph/Deep Agents architecture remains a roadmap, not a description of installed infrastructure.

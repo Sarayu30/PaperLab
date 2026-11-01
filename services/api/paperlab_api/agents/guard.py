@@ -4,13 +4,14 @@ import json
 import threading
 import time
 
+import groq
 from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import AIMessage, SystemMessage, messages_to_dict
 from langchain_core.utils.function_calling import convert_to_openai_tool
 
 from ..groq_client import ModelError
 
-MAX_MODEL_CALLS = 8
+MAX_MODEL_CALLS = 12
 MAX_TOOL_CALLS = 24
 MAX_INPUT_BYTES = 30000
 MAX_OUTPUT_TOKENS = 6000
@@ -46,6 +47,7 @@ class RunControl:
             "completion_tokens": 0,
             "total_tokens": 0,
             "incomplete_usage": False,
+            "rate_limit_retries": 0,
             "agent_trace": [],
         }
 
@@ -92,7 +94,8 @@ class AgentGuard(AgentMiddleware):
                 )
             if c.usage["model_calls"] >= MAX_MODEL_CALLS:
                 raise ModelError(
-                    "Agent reached its eight-model-call limit. Narrow the task and retry."
+                    f"Agent reached its {MAX_MODEL_CALLS}-model-call limit. "
+                    "Narrow the task and retry."
                 )
             payload = {
                 "messages": messages_to_dict(
@@ -105,12 +108,40 @@ class AgentGuard(AgentMiddleware):
                 raise ModelError("Agent context reached its size limit. Narrow the task and retry.")
             c.usage["model_calls"] += 1
             c.event("model_started", self.agent, "Requesting the next action")
-        try:
-            response = handler(request)
-        except Exception:
-            with c.lock:
-                c.usage["incomplete_usage"] = True
-            raise
+        while True:
+            try:
+                response = handler(request)
+                break
+            except groq.RateLimitError as exc:
+                with c.lock:
+                    c.usage["incomplete_usage"] = True
+                    try:
+                        delay = max(1, float(exc.response.headers.get("retry-after", "30")))
+                    except (ValueError, TypeError):
+                        delay = 30
+                    if delay > 60 or c.usage["rate_limit_retries"] >= 2:
+                        raise
+                    c.usage["rate_limit_retries"] += 1
+                    c.event(
+                        "rate_limit_wait",
+                        self.agent,
+                        f"Groq rate limit: waiting {delay:g}s before a bounded retry",
+                    )
+                while delay > 0:
+                    c.check()
+                    interval = min(1, delay)
+                    time.sleep(interval)
+                    delay -= interval
+                with c.lock:
+                    c.check()
+                    if c.usage["model_calls"] >= MAX_MODEL_CALLS:
+                        raise ModelError(f"Agent reached its {MAX_MODEL_CALLS}-model-call limit.")
+                    c.usage["model_calls"] += 1
+                    c.event("model_started", self.agent, "Retrying after the provider rate limit")
+            except Exception:
+                with c.lock:
+                    c.usage["incomplete_usage"] = True
+                raise
         with c.lock:
             for message in response.result:
                 if isinstance(message, AIMessage):

@@ -17,12 +17,15 @@ from pydantic import Field
 
 
 class ScriptedGroq(ChatGroq):
-    responses: list[AIMessage] = Field(exclude=True)
+    responses: list[Any] = Field(exclude=True)
     requests: list[Any] = Field(default_factory=list, exclude=True)
 
     def _generate(self, messages, stop=None, run_manager=None, **kwargs):
         self.requests.append({"messages": messages, **kwargs})
-        return ChatResult(generations=[ChatGeneration(message=self.responses.pop(0))])
+        response = self.responses.pop(0)
+        if isinstance(response, Exception):
+            raise response
+        return ChatResult(generations=[ChatGeneration(message=response)])
 
 
 def action(name, args):
@@ -170,7 +173,7 @@ def test_model_loop_is_bounded(tmp_path):
         tmp_path,
         [message(action("read_paper_page", {"page": 1})) for _ in range(MAX_MODEL_CALLS + 2)],
     )
-    with pytest.raises(AgentFailure, match="eight-model-call") as error:
+    with pytest.raises(AgentFailure, match=f"{MAX_MODEL_CALLS}-model-call") as error:
         runtime.generate("Analyze.", context(), AgentOutput)
     assert len(model.requests) == MAX_MODEL_CALLS
     assert error.value.usage["total_tokens"] == MAX_MODEL_CALLS * 150
@@ -261,3 +264,30 @@ def test_default_model_can_be_constructed_without_network(tmp_path, monkeypatch)
     monkeypatch.setattr(instance, "build", inspect_build)
     with pytest.raises(AgentFailure, match="construction verified"):
         instance.generate("Analyze.", context(), AgentOutput)
+
+
+def test_rate_limit_wait_respects_retry_cap_and_records_uncertain_usage(tmp_path, monkeypatch):
+    import groq
+    import httpx
+    from paperlab_api.agents import guard
+
+    monkeypatch.setattr(guard.time, "sleep", lambda _: None)
+    error = groq.RateLimitError(
+        "rate limited",
+        response=httpx.Response(
+            429, headers={"retry-after": "1"}, request=httpx.Request("POST", "https://api.groq.com")
+        ),
+        body={},
+    )
+    runtime, model = runner(
+        tmp_path, [error, message(action("read_paper_page", {"page": 1})), finish()]
+    )
+    _, usage = runtime.generate("Analyze.", context(), AgentOutput)
+    assert usage["model_calls"] == 3
+    assert usage["rate_limit_retries"] == 1
+    assert usage["incomplete_usage"] is True
+    assert any(e["kind"] == "rate_limit_wait" for e in usage["agent_trace"])
+    runtime, model = runner(tmp_path, [error, error, error, finish()])
+    with pytest.raises(AgentFailure, match="rate limit"):
+        runtime.generate("Analyze.", context(), AgentOutput)
+    assert len(model.requests) == 3

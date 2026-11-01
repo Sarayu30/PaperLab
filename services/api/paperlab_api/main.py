@@ -7,6 +7,7 @@ from sqlalchemy import select, text, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from .agents.guard import MAX_MODEL_CALLS, MAX_TOOL_CALLS
 from .config import groq_settings
 from .database import database_url, make_engine
 from .models import ContractRevision, Project
@@ -58,8 +59,8 @@ def create_app(url: str | None = None) -> FastAPI:
             "provider": "Groq",
             "model": model,
             "runtime": "deepagents",
-            "max_model_calls": 8,
-            "max_tool_calls": 24,
+            "max_model_calls": MAX_MODEL_CALLS,
+            "max_tool_calls": MAX_TOOL_CALLS,
         }
 
     @app.get("/health")

@@ -91,7 +91,21 @@ async function mockWorkspace(page: Page, configured = true, pending = false) {
                   : [],
               warnings: ['AI draft; not executed.'],
             },
-        usage: { model: 'test-model', total_tokens: 200 },
+        usage: {
+          model: 'test-model',
+          total_tokens: 200,
+          runtime: 'deepagents',
+          model_calls: 2,
+          tool_calls: 1,
+          agent_trace: [
+            {
+              sequence: 1,
+              kind: 'tool_finished',
+              agent: 'research-analyst',
+              detail: 'search_paper',
+            },
+          ],
+        },
         error: '',
         message: body.message,
         feedback: state.feedback,
@@ -151,6 +165,11 @@ test('guided UI saves a source, approves a plan and regenerates affected work', 
   await page.goto(`/projects/${projectId}/research`);
   await attach(page);
   await run(page, 'Understand the paper');
+  await page.locator('paperlab-agent-trace summary').click();
+  await expect(page.getByRole('list', { name: 'Agent action history' })).toContainText(
+    'search_paper',
+  );
+  await expect(page.locator('paperlab-agent-trace summary')).toContainText('2 model calls');
   await run(page, 'Plan the experiment');
   await page
     .getByRole('button', { name: /Draft the code/ })

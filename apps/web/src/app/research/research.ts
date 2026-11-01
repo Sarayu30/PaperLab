@@ -10,10 +10,11 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Project, ProjectApi } from '../projects/project-api';
+import { AgentTrace } from './agent-trace';
 import { ProviderStatus, ResearchApi, researchError, Stage, Workspace } from './research-api';
 
 @Component({
-  imports: [FormsModule, RouterLink, DatePipe, DecimalPipe],
+  imports: [FormsModule, RouterLink, DatePipe, DecimalPipe, AgentTrace],
   templateUrl: './research.html',
   styleUrl: './research.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,7 +53,7 @@ export class Research implements OnDestroy {
     { id: 'analysis', name: 'Understand the paper', role: 'Research analyst' },
     { id: 'plan', name: 'Plan the experiment', role: 'Experiment planner' },
     { id: 'implementation', name: 'Draft the code', role: 'Implementation author' },
-    { id: 'review', name: 'Review the method', role: 'Independent reviewer' },
+    { id: 'review', name: 'Review the method', role: 'Methodology reviewer' },
     { id: 'results', name: 'Compare results', role: 'Results analyst' },
     { id: 'extensions', name: 'Explore extensions', role: 'Research analyst' },
     { id: 'report', name: 'Write the report', role: 'Documentation author' },

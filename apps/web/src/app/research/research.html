@@ -7,8 +7,11 @@
   </div>
   @if (provider(); as p) {
     <span class="provider" [class.missing]="!p.configured"
-      >{{ p.configured ? 'Groq configured' : 'Groq key missing' }}<small>{{ p.model }}</small></span
-    >
+      >{{ p.configured ? 'Groq configured' : 'Groq key missing' }}<small>{{ p.model }}</small>
+      @if (p.runtime === 'deepagents') {
+        <small>Deep Agents runtime</small>
+      }
+    </span>
   }
 </header>
 @if (error()) {
@@ -46,6 +49,7 @@
         Stop this step
       </button>
     </div>
+    <paperlab-agent-trace [usage]="active.usage" [live]="true" />
   }
   @if (project()?.setup?.control_mode === 'autonomous') {
     <div class="autonomy">
@@ -218,6 +222,7 @@
                   }
                 </details>
               }
+              <paperlab-agent-trace [usage]="run.usage" />
               @if (run.feedback) {
                 <details>
                   <summary>Feedback used for this request</summary>
@@ -336,6 +341,9 @@
               </div>
               @if (latestAttempt()?.error) {
                 <p class="error-message" role="alert">{{ latestAttempt()?.error }}</p>
+              }
+              @if (!w.active_run && latestAttempt(); as attempt) {
+                <paperlab-agent-trace [usage]="attempt.usage" />
               }
               @if (!current()) {
                 <p class="muted">

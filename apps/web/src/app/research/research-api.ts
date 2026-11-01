@@ -29,7 +29,17 @@ export interface Run {
   error: string;
   message: string;
   feedback: string;
-  usage: { model?: string; total_tokens?: number; estimated_usd?: number; reserved_usd?: number };
+  usage: {
+    model?: string;
+    total_tokens?: number;
+    estimated_usd?: number;
+    reserved_usd?: number;
+    runtime?: string;
+    model_calls?: number;
+    tool_calls?: number;
+    incomplete_usage?: boolean;
+    agent_trace?: { sequence: number; kind: string; agent: string; detail: string }[];
+  };
   created_at: string;
   finished_at: string | null;
 }
@@ -61,6 +71,7 @@ export interface ProviderStatus {
   configured: boolean;
   model: string;
   provider: string;
+  runtime?: string;
 }
 
 export function researchError(error: unknown): string {

@@ -5,7 +5,7 @@ import threading
 import time
 
 from langchain.agents.middleware import AgentMiddleware
-from langchain_core.messages import AIMessage, messages_to_dict
+from langchain_core.messages import AIMessage, SystemMessage, messages_to_dict
 from langchain_core.utils.function_calling import convert_to_openai_tool
 
 from ..groq_client import ModelError
@@ -78,13 +78,17 @@ class AgentGuard(AgentMiddleware):
             c.check()
             if not self.evidence_seen:
                 evidence_tools = [
-                    t
-                    for t in request.tools
-                    if getattr(t, "name", "")
-                    in {"search_paper", "read_paper_page", "read_artifact"}
+                    t for t in request.tools if getattr(t, "name", "") == "read_paper_page"
                 ]
+                content = request.system_message.text if request.system_message else ""
                 request = request.override(
-                    tools=evidence_tools, response_format=None, tool_choice="required"
+                    tools=evidence_tools,
+                    response_format=None,
+                    tool_choice={"type": "function", "function": {"name": "read_paper_page"}},
+                    system_message=SystemMessage(
+                        content + "\nFIRST ACTION: call read_paper_page with page=1. "
+                        "Other tools become available on the next turn. Do not write files yet."
+                    ),
                 )
             if c.usage["model_calls"] >= MAX_MODEL_CALLS:
                 raise ModelError(

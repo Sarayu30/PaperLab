@@ -65,15 +65,13 @@ def runner(tmp_path, responses, **kwargs):
 
 
 def test_real_graph_uses_tool_and_persists_checkpoint(tmp_path):
-    runtime, model = runner(
-        tmp_path, [message(action("search_paper", {"query": "classifier"})), finish()]
-    )
+    runtime, model = runner(tmp_path, [message(action("read_paper_page", {"page": 1})), finish()])
     ctx = context()
     output, usage = runtime.generate("Analyze the paper.", ctx, AgentOutput)
     assert output["summary"] == "Grounded."
     assert usage["model_calls"] == 2
     assert usage["total_tokens"] == 300
-    assert any(e["detail"] == "search_paper" for e in usage["agent_trace"])
+    assert any(e["detail"] == "read_paper_page" for e in usage["agent_trace"])
     names = {t["function"]["name"] for t in model.requests[0]["tools"]}
     assert "execute" not in names and "write_file" not in names
     with SqliteSaver.from_conn_string(str(tmp_path / "checkpoints.db")) as saver:
@@ -137,7 +135,7 @@ def test_specialist_delegation_shares_model_budget(tmp_path):
                     },
                 )
             ),
-            message(action("search_paper", {"query": "classifier"})),
+            message(action("read_paper_page", {"page": 1})),
             message(content="The paper says use a linear classifier on page 1."),
             finish(),
         ],
@@ -158,7 +156,7 @@ def test_cancellation_stops_next_model_call(tmp_path):
 
     runtime, model = runner(
         tmp_path,
-        [message(action("search_paper", {"query": "classifier"})), finish()],
+        [message(action("read_paper_page", {"page": 1})), finish()],
         on_event=observe,
         check_active=lambda _: active,
     )
@@ -170,10 +168,7 @@ def test_cancellation_stops_next_model_call(tmp_path):
 def test_model_loop_is_bounded(tmp_path):
     runtime, model = runner(
         tmp_path,
-        [
-            message(action("search_paper", {"query": "classifier"}))
-            for _ in range(MAX_MODEL_CALLS + 2)
-        ],
+        [message(action("read_paper_page", {"page": 1})) for _ in range(MAX_MODEL_CALLS + 2)],
     )
     with pytest.raises(AgentFailure, match="eight-model-call") as error:
         runtime.generate("Analyze.", context(), AgentOutput)

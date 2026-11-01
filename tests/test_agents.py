@@ -1,5 +1,6 @@
 """Exercise the real Deep Agents/LangGraph loop with a deterministic chat model."""
 
+import time
 from typing import Any
 from uuid import uuid4
 
@@ -38,7 +39,7 @@ def message(*calls, content=""):
 
 def finish():
     return message(
-        action("AgentOutput", AgentOutput(title="Test artifact", summary="Grounded.").model_dump())
+        action("agent_output", AgentOutput(title="Test artifact", summary="Grounded.").model_dump())
     )
 
 
@@ -126,6 +127,7 @@ def test_specialist_delegation_shares_model_budget(tmp_path):
     runtime, _ = runner(
         tmp_path,
         [
+            message(action("read_paper_page", {"page": 1})),
             message(
                 action(
                     "task",
@@ -141,8 +143,8 @@ def test_specialist_delegation_shares_model_budget(tmp_path):
         ],
     )
     _, usage = runtime.generate("Audit evidence.", context(), AgentOutput)
-    assert usage["model_calls"] == 4
-    assert usage["total_tokens"] == 600
+    assert usage["model_calls"] == 5
+    assert usage["total_tokens"] == 750
     assert any(e["agent"] == "evidence-auditor" for e in usage["agent_trace"])
 
 
@@ -184,3 +186,83 @@ def test_tools_only_see_attached_snapshot():
     assert "No current artifact" in tools["read_artifact"].invoke({"stage": "../../.env"})
     assert "invalid" in tools["read_paper_page"].invoke({"page": 99})
     assert "linear classifier" in tools["read_paper_page"].invoke({"page": 1})
+
+
+def test_api_uses_graph_and_saves_action_trace(client, setup, tmp_path, monkeypatch):
+    monkeypatch.setenv("GROQ_API_KEY", "unit-test-key")
+    service = client.app.state.research
+    runtime, _ = runner(
+        tmp_path,
+        [message(action("read_paper_page", {"page": 1})), finish()],
+        on_event=service.record_agent_event,
+        check_active=service.agent_active,
+    )
+    service.provider = runtime
+    pid = client.post("/projects", json=setup).json()["id"]
+    root = f"/projects/{pid}/research"
+    state = client.get(root).json()
+    state = client.post(
+        root + "/source/text",
+        json={
+            "expected_version": state["version"],
+            "text": "We evaluate a linear classifier on a held-out split. " * 5,
+        },
+    ).json()
+    response = client.post(
+        root + "/runs",
+        json={
+            "expected_version": state["version"],
+            "stage": "analysis",
+            "request_id": str(uuid4()),
+        },
+    )
+    assert response.status_code == 202
+    for _ in range(200):
+        state = client.get(root).json()
+        if not state["active_run"]:
+            break
+        time.sleep(0.01)
+    run = state["runs"][0]
+    assert run["status"] == "completed", run["error"]
+    assert run["usage"]["runtime"] == "deepagents"
+    assert run["usage"]["model_calls"] == 2
+    assert run["usage"]["estimated_usd"] < run["usage"]["reserved_usd"]
+    assert any(e["kind"] == "tool_finished" for e in run["usage"]["agent_trace"])
+
+
+def test_virtual_filesystem_denies_writes_outside_draft(tmp_path):
+    runtime, model = runner(
+        tmp_path,
+        [
+            message(action("read_paper_page", {"page": 1})),
+            message(action("write_file", {"file_path": "/secret.py", "content": "test"})),
+            finish(),
+        ],
+    )
+    with pytest.raises(AgentFailure, match="static checks"):
+        runtime.generate("Write files.", context("implementation"), AgentOutput)
+    results = [
+        m.content
+        for r in model.requests
+        for m in r["messages"]
+        if getattr(m, "name", "") == "write_file"
+    ]
+    assert any("denied" in r.lower() for r in results)
+
+
+def test_default_model_can_be_constructed_without_network(tmp_path, monkeypatch):
+    from paperlab_api.agents import runtime as module
+
+    monkeypatch.setenv("GROQ_API_KEY", "unit-test-key")
+    monkeypatch.setenv("GROQ_MODEL", "openai/gpt-oss-120b")
+    instance = DeepResearchAgent(checkpoint_path=tmp_path / "checkpoint.db")
+
+    def inspect_build(model, *args):
+        assert isinstance(model, module.ChatGroq)
+        assert model.reasoning_effort == "low"
+        assert model.max_retries == 0
+        raise module.ModelError("construction verified")
+
+    monkeypatch.setattr(instance, "build", inspect_build)
+    with pytest.raises(AgentFailure, match="construction verified"):
+        instance.generate("Analyze.", context(), AgentOutput)

@@ -70,11 +70,22 @@ class RunControl:
 class AgentGuard(AgentMiddleware):
     def __init__(self, control, agent, schema=None):
         self.control, self.agent, self.schema = control, agent, schema
+        self.evidence_seen = False
 
     def wrap_model_call(self, request, handler):
         c = self.control
         with c.lock:
             c.check()
+            if not self.evidence_seen:
+                evidence_tools = [
+                    t
+                    for t in request.tools
+                    if getattr(t, "name", "")
+                    in {"search_paper", "read_paper_page", "read_artifact"}
+                ]
+                request = request.override(
+                    tools=evidence_tools, response_format=None, tool_choice="required"
+                )
             if c.usage["model_calls"] >= MAX_MODEL_CALLS:
                 raise ModelError(
                     "Agent reached its eight-model-call limit. Narrow the task and retry."
@@ -120,5 +131,7 @@ class AgentGuard(AgentMiddleware):
             # Do not record code, paper text, raw arguments or model reasoning in the public trace.
             c.event("tool_started", self.agent, name)
         result = handler(request)
+        if name in {"search_paper", "read_paper_page", "read_artifact"}:
+            self.evidence_seen = True
         c.event("tool_finished", self.agent, name)
         return result

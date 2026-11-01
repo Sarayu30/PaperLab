@@ -53,7 +53,14 @@ def create_app(url: str | None = None) -> FastAPI:
     @app.get("/ai/status")
     def ai_status():
         key, model = groq_settings()
-        return {"configured": bool(key), "provider": "Groq", "model": model}
+        return {
+            "configured": bool(key),
+            "provider": "Groq",
+            "model": model,
+            "runtime": "deepagents",
+            "max_model_calls": 8,
+            "max_tool_calls": 24,
+        }
 
     @app.get("/health")
     def health():

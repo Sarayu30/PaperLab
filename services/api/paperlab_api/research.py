@@ -20,8 +20,10 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from starlette.concurrency import run_in_threadpool
 
+from .agents.guard import AgentFailure, reserve_cost
+from .agents.runtime import DeepResearchAgent
 from .config import groq_settings
-from .groq_client import GroqClient, ModelError
+from .groq_client import ModelError
 from .models import AgentRun, ContractRevision, PaperSource, Project, ResearchWorkspace
 from .paper_intake import MAX_BYTES, digest, fetch_pdf, pages_from_pdf, source_context
 from .research_prompts import BASE, PROMPTS
@@ -65,8 +67,11 @@ def run_view(run):
 class ResearchService:
     def __init__(self, engine, provider=None):
         self.engine = engine
-        self.provider = provider or GroqClient()
         self.lock = threading.RLock()
+        self.closed = False
+        self.provider = provider or DeepResearchAgent(
+            on_event=self.record_agent_event, check_active=self.agent_active
+        )
         self.pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="paperlab-ai")
 
     def recover(self):
@@ -87,7 +92,30 @@ class ResearchService:
             pass
 
     def close(self):
+        self.closed = True
         self.pool.shutdown(wait=False, cancel_futures=True)
+
+    def agent_active(self, run_id):
+        with self.lock, Session(self.engine) as session:
+            run = session.get(AgentRun, run_id)
+            if self.closed or not run or run.status not in {"queued", "running"}:
+                return False
+            workspace = session.get(ResearchWorkspace, run.project_id)
+            project = session.get(Project, run.project_id)
+            return bool(
+                workspace
+                and project
+                and workspace.active_run == run_id
+                and workspace.version == run.workspace_version
+                and project.revision == run.project_revision
+            )
+
+    def record_agent_event(self, run_id, event, usage):
+        with self.lock, Session(self.engine) as session, session.begin():
+            run = session.get(AgentRun, run_id)
+            if run:
+                # Detached JSON snapshot; model/tool threads never share mutable DB values.
+                run.usage = {**run.usage, **json.loads(json.dumps(usage))}
 
     def workspace(self, session, project_id):
         project = session.get(Project, project_id)
@@ -280,6 +308,7 @@ class ResearchService:
                 raise HTTPException(503, "GROQ_API_KEY is missing from the backend .env.")
             source = session.get(PaperSource, workspace.source_id)
             context = {
+                "agent_run_id": str(uuid4()),
                 "current_stage": stage,
                 "contract": setup,
                 "paper_name": source.name,
@@ -293,9 +322,12 @@ class ResearchService:
                 "message": request.message,
                 "self_reported_evidence": workspace.evidence,
                 "prior_artifacts": {},
+                "source_document": source.pages,
+                "artifact_documents": {},
             }
             for name, run_id in workspace.artifacts.items():
                 previous = session.get(AgentRun, run_id).output
+                context["artifact_documents"][name] = previous
                 # Only code review/chat need full source. Avoid drowning result evidence in code.
                 full = (
                     (name == "implementation" and stage in {"review", "chat"})
@@ -329,7 +361,18 @@ class ResearchService:
                     {"question": r.context.get("message"), "answer": r.output.get("summary")}
                     for r in reversed(recent_chat)
                 ]
-            if len(json.dumps(context)) > 150000:
+            if (
+                len(
+                    json.dumps(
+                        {
+                            k: v
+                            for k, v in context.items()
+                            if k not in {"source_document", "artifact_documents"}
+                        }
+                    )
+                )
+                > 150000
+            ):
                 raise HTTPException(
                     422, "Context is too large. Narrow the implementation or start a focused brief."
                 )
@@ -351,9 +394,8 @@ class ResearchService:
             rates = prices.get(model)
             reservation = None
             if rates:
-                # One token cannot encode less than one byte; add room for schema/chat framing.
-                input_bound = len((BASE + PROMPTS[stage] + json.dumps(context)).encode()) + 15000
-                reservation = (input_bound * rates[0] + 6000 * rates[1]) / 1_000_000
+                # Reserve the bounded parent + specialist loop, not just its first call.
+                reservation = reserve_cost(rates)
             if budget is not None:
                 if budget == 0 or rates is None:
                     raise HTTPException(
@@ -376,7 +418,7 @@ class ResearchService:
                         422, "The next model call would exceed the recorded assistant budget."
                     )
             run = AgentRun(
-                id=str(uuid4()),
+                id=context["agent_run_id"],
                 project_id=project_id,
                 workspace_version=workspace.version,
                 project_revision=project.revision,
@@ -443,7 +485,8 @@ class ResearchService:
                 output["files"] = []
             valid_citations = []
             pages = {
-                p["page"]: re.sub(r"\s+", " ", p["text"]).strip() for p in context["source_pages"]
+                p["page"]: re.sub(r"\s+", " ", p["text"]).strip()
+                for p in context.get("source_document", context["source_pages"])
             }
             for citation in output["citations"]:
                 quote = re.sub(r"\s+", " ", citation["quote"]).strip()
@@ -459,7 +502,7 @@ class ResearchService:
                     "No source quote was verified for this output. Check claims against the paper."
                 )
             output["warnings"].append(
-                "AI draft based on selected text excerpts; figures and omitted text may be missing."
+                "AI draft using extracted paper text and retrieval tools; figures may be missing."
             )
             if stage in {"results", "report"}:
                 output["warnings"].append(
@@ -467,6 +510,8 @@ class ResearchService:
                     "PaperLab has not executed or verified them."
                 )
             failure = ""
+        except AgentFailure as exc:
+            output, usage, failure = {}, exc.usage, str(exc)
         except ModelError as exc:
             output, usage, failure = {}, {}, str(exc)
         except Exception:
@@ -479,7 +524,7 @@ class ResearchService:
         with self.lock, Session(self.engine) as session, session.begin():
             run = session.get(AgentRun, run_id)
             rates = run.usage.get("rates")
-            if usage and rates:
+            if usage and rates and not usage.get("incomplete_usage"):
                 usage["estimated_usd"] = (
                     usage.get("prompt_tokens", 0) * rates[0]
                     + usage.get("completion_tokens", 0) * rates[1]

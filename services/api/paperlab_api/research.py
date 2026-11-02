@@ -134,6 +134,11 @@ class ResearchService:
             session.add(workspace)
             session.flush()
         if workspace.project_revision != project.revision:
+            previous = session.get(ContractRevision, (project_id, workspace.project_revision))
+            current = session.get(ContractRevision, (project_id, project.revision))
+            if previous.setup.get("paper_url") != current.setup.get("paper_url"):
+                workspace.source_id = None
+                workspace.feedback = ""
             self.invalidate(session, workspace, "analysis")
             workspace.project_revision = project.revision
             workspace.evidence = {}
@@ -205,19 +210,23 @@ class ResearchService:
     def attach(self, project_id, expected, name, pages):
         with self.lock, Session(self.engine) as session, session.begin():
             _, workspace = self.checked(session, project_id, expected)
-            self.invalidate(session, workspace, "analysis")
-            source = PaperSource(
-                id=str(uuid4()),
-                project_id=project_id,
-                name=name[:200],
-                digest=digest(pages),
-                pages=pages,
-                created_at=now(),
+            existing = (
+                session.get(PaperSource, workspace.source_id) if workspace.source_id else None
             )
-            session.add(source)
-            session.flush()
-            workspace.source_id = source.id
-            workspace.feedback, workspace.evidence = "", {}
+            if not existing or existing.digest != digest(pages):
+                self.invalidate(session, workspace, "analysis")
+                source = PaperSource(
+                    id=str(uuid4()),
+                    project_id=project_id,
+                    name=name[:200],
+                    digest=digest(pages),
+                    pages=pages,
+                    created_at=now(),
+                )
+                session.add(source)
+                session.flush()
+                workspace.source_id = source.id
+                workspace.feedback, workspace.evidence = "", {}
         return self.snapshot(project_id)
 
     def feedback(self, project_id, request):

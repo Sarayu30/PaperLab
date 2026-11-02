@@ -152,6 +152,38 @@ def test_setup_revision_invalidates_ai_artifacts(research):
     assert after["version"] > before["version"]
     assert after["artifacts"] == {}
     assert after["project_revision"] == 2
+    assert after["source"]["id"] == before["source"]["id"]
+
+
+def test_changing_paper_link_detaches_old_source(research):
+    client, pid, root = research
+    before = run_step(client, root, "analysis")
+    project = client.get(f"/projects/{pid}").json()
+    project["setup"]["paper_url"] = "https://openreview.net/forum?id=new-paper"
+    response = client.post(
+        f"/projects/{pid}/revisions",
+        json={"expected_revision": 1, "setup": project["setup"], "note": "Use a different paper"},
+    )
+    assert response.status_code == 201
+    after = client.get(root).json()
+    assert after["source"] is None and not after["artifacts"]
+    assert after["runs"][0]["source_id"] == before["source"]["id"]
+
+
+def test_reimporting_same_paper_preserves_outputs(research, monkeypatch):
+    client, _, root = research
+    before = run_step(client, root, "analysis")
+    monkeypatch.setattr("paperlab_api.research.fetch_pdf", lambda _: before["source"]["pages"])
+    after = client.post(root + "/source/url", json={"expected_version": before["version"]}).json()
+    assert after["version"] == before["version"]
+    assert after["source"] == before["source"]
+    assert after["artifacts"] == before["artifacts"]
+
+
+def test_openreview_discussion_link_resolves_to_pdf():
+    assert paper_url("https://openreview.net/forum?id=fixture#discussion") == (
+        "https://openreview.net/pdf?id=fixture"
+    )
 
 
 def test_cancellation_discards_late_output_and_duplicate_request_is_idempotent(research):

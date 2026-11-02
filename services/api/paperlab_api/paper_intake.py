@@ -62,6 +62,8 @@ def paper_url(value: str) -> str:
         path = path.replace("/abs/", "/pdf/", 1)
     if parts.hostname == "openaccess.thecvf.com" and path.endswith(".html"):
         path = path.replace("/html/", "/papers/").removesuffix(".html") + ".pdf"
+    if parts.hostname == "openreview.net" and path.rstrip("/") == "/forum":
+        path = "/pdf"
     return urlunsplit((parts.scheme, parts.netloc, path, parts.query, ""))
 
 

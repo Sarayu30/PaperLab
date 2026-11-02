@@ -51,13 +51,13 @@ async function mockWorkspace(page: Page, configured = true, pending = false) {
         status: 409,
         json: { detail: 'The workspace changed. Refresh before continuing.' },
       });
-    if (path.endsWith('/source/text')) {
+    if (path.endsWith('/source/text') || path.endsWith('/source/url')) {
       state.version++;
       state.source = {
         id: 'fixture-source',
-        name: body.name,
+        name: body.name || 'Imported paper',
         digest: 'abc123abc123',
-        pages: [{ page: 1, text: body.text }],
+        pages: [{ page: 1, text: body.text || paperText }],
       };
     } else if (path.endsWith('/runs')) {
       const run: Run = {
@@ -144,9 +144,8 @@ async function mockWorkspace(page: Page, configured = true, pending = false) {
 }
 
 async function attach(page: Page) {
-  await page.getByLabel('Paper text', { exact: true }).fill(paperText);
-  await page.getByRole('button', { name: 'Save paper text', exact: true }).click();
-  await expect(page.getByText('Paper saved. Start the analysis when ready.')).toBeVisible();
+  await expect(page.getByText('Imported paper', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('Paper text', { exact: true })).not.toBeVisible();
 }
 async function run(page: Page, name: string) {
   await page
@@ -156,6 +155,44 @@ async function run(page: Page, name: string) {
   await page.getByRole('button', { name: 'Run this step', exact: true }).click();
   await expect(page.getByText('A source-grounded test draft.', { exact: true })).toBeVisible();
 }
+
+test('saved PDFs are reused without importing or requesting text again', async ({ page }) => {
+  const { state } = await mockWorkspace(page);
+  state.source = {
+    id: 'uploaded-pdf',
+    name: 'client-paper.pdf',
+    digest: 'saved-pdf',
+    pages: [{ page: 1, text: paperText }],
+  };
+  const imports: string[] = [];
+  page.on('request', (r) => {
+    if (r.url().endsWith('/source/url')) imports.push(r.url());
+  });
+  await page.goto(`/projects/${projectId}/research`);
+  await expect(page.getByText('client-paper.pdf', { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByText('client-paper.pdf', { exact: true })).toBeVisible();
+  expect(imports).toHaveLength(0);
+  await expect(page.getByLabel('Paper text', { exact: true })).not.toBeVisible();
+});
+
+test('failed link import offers PDF upload and optional excerpt fallback', async ({ page }) => {
+  await mockWorkspace(page);
+  await page.route('**/source/url', (route) =>
+    route.fulfill({
+      status: 422,
+      json: { detail: 'Paper download failed. Upload the PDF.' },
+    }),
+  );
+  await page.goto(`/projects/${projectId}/research`);
+  await expect(page.getByRole('alert')).toContainText('Paper download failed');
+  await expect(page.locator('input[type=file]')).toBeEnabled();
+  await expect(page.getByLabel('Paper text', { exact: true })).not.toBeVisible();
+  await page.getByText('Other option: paste an excerpt', { exact: true }).click();
+  await page.getByLabel('Paper text', { exact: true }).fill(paperText);
+  await page.getByRole('button', { name: 'Save paper text', exact: true }).click();
+  await expect(page.getByText('Pasted paper', { exact: true })).toBeVisible();
+});
 
 test('guided UI saves a source, approves a plan and regenerates affected work', async ({
   page,
@@ -199,7 +236,7 @@ test('guided UI saves a source, approves a plan and regenerates affected work', 
   await expect.poll(() => calls.length).toBe(6);
   expect(calls.at(-1)?.stage).toBe('chat');
   await page.reload();
-  await expect(page.getByText('Pasted paper', { exact: true })).toBeVisible();
+  await expect(page.getByText('Imported paper', { exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Download project ZIP' })).toHaveAttribute(
     'href',
     `/api/projects/${projectId}/research/export`,

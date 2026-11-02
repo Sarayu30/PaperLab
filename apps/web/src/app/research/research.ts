@@ -30,6 +30,7 @@ export class Research implements OnDestroy {
   readonly busy = signal(false);
   readonly error = signal('');
   readonly notice = signal('');
+  readonly importing = signal(false);
   readonly auto = signal(false);
   readonly selectedPage = signal(1);
   readonly running = computed(() =>
@@ -90,6 +91,7 @@ export class Research implements OnDestroy {
       this.project.set(project);
       this.workspace.set(workspace);
       this.provider.set(provider);
+      if (!workspace.source && project.setup.paper_url) await this.importUrl();
       this.schedule();
     } catch (e) {
       this.error.set(researchError(e));
@@ -235,20 +237,20 @@ export class Research implements OnDestroy {
     }
   }
   async importUrl() {
-    if (
-      await this.mutate(
-        'source/url',
-        {},
-        'Paper imported. Check the extracted text before analysis.',
-      )
-    )
-      this.selectedPage.set(1);
+    if (this.busy()) return;
+    this.importing.set(true);
+    try {
+      if (await this.mutate('source/url', {}, 'Paper ready. You can start the analysis.'))
+        this.selectedPage.set(1);
+    } finally {
+      this.importing.set(false);
+    }
   }
   async upload(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     const state = this.workspace();
-    if (!file || !state) return;
+    if (!file || !state || this.busy()) return;
     if (file.size > 10 * 1024 * 1024) {
       this.error.set('Choose a PDF no larger than 10 MB.');
       return;
@@ -259,7 +261,7 @@ export class Research implements OnDestroy {
     try {
       this.workspace.set(await this.api.upload(this.id, state.version, file));
       this.selectedPage.set(1);
-      this.notice.set('PDF text saved. Check the extraction before analysis.');
+      this.notice.set('Paper ready. You can start the analysis.');
     } catch (e) {
       this.error.set(researchError(e));
     } finally {

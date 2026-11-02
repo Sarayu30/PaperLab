@@ -111,16 +111,36 @@
       @if (selected() === 'source') {
         <section class="research-panel">
           <p class="eyebrow">Evidence before inference</p>
-          <h2>Bring the actual paper.</h2>
+          <h2>
+            {{
+              w.source
+                ? 'Your paper is ready.'
+                : importing()
+                  ? 'Opening your paper…'
+                  : 'Add your paper.'
+            }}
+          </h2>
           <p class="muted">
-            Attach a text-based PDF, import the saved paper URL, or paste its text. Paper excerpts,
-            your brief, feedback and current artifacts are sent to Groq when you run an AI step.
+            @if (w.source) {
+              The agents use this saved paper directly. No need to upload it again or paste its
+              text.
+            } @else if (importing()) {
+              Downloading the paper from your saved link and extracting its pages. No AI credits are
+              used.
+            } @else {
+              We couldn't read a paper from the saved link. Upload its PDF below, or retry the
+              import.
+            }
           </p>
+          @if (importing()) {
+            <p role="status">Importing paper…</p>
+          }
           <div class="source-actions">
             <button class="button secondary" (click)="importUrl()" [disabled]="busy()">
-              Import saved paper URL</button
+              {{ w.source ? 'Reimport saved link' : 'Retry saved link' }}</button
             ><label class="upload-label"
-              >Upload PDF<input
+              >{{ w.source ? 'Replace PDF' : 'Upload PDF'
+              }}<input
                 type="file"
                 accept=".pdf,application/pdf"
                 (change)="upload($event)"
@@ -131,8 +151,8 @@
             URL import: arXiv, CVF or OpenReview. PDF: up to 10 MB / 80 pages. Scanned PDFs need
             text extraction first.
           </p>
-          <details [open]="!w.source">
-            <summary>Paste paper text</summary>
+          <details>
+            <summary>Other option: paste an excerpt</summary>
             <label for="paper-name">Source name</label
             ><input
               id="paper-name"
@@ -165,6 +185,10 @@
               <p class="small muted">
                 Replacing the source invalidates its AI outputs. Previous runs remain in activity
                 history.
+              </p>
+              <p class="small muted">
+                Paper excerpts, your brief, feedback and current artifacts are sent to Groq when you
+                run an AI step.
               </p>
               <label for="source-page">Read extracted page</label
               ><select

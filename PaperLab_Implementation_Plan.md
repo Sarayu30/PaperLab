@@ -378,6 +378,11 @@ proposals, reports and chat. Human feedback invalidates affected downstream arti
 outdated approval. Sources, run snapshots, usage estimates and revisions persist in the database.
 Exports include generated files, a handoff notebook, provenance and a Markdown report.
 
+Paper intake now accepts a link or a PDF during setup. PDF-only projects do not require a URL;
+supported saved links import automatically on opening the workspace, and existing sources are
+reused. Pasting an excerpt is an optional fallback. Source changes invalidate old work while
+historical runs remain available. See `docs/client-demo-checklist.md` for the verified walkthrough.
+
 As of 2 November 2026, the stage controller invokes Deep Agents graphs backed by LangGraph. Agents
 retrieve paper evidence, inspect artifacts, write and repair virtual draft files, and can delegate
 evidence questions to a scoped specialist. Shared middleware bounds model/tool calls and checks

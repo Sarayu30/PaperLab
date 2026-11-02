@@ -117,8 +117,10 @@ The Vite dependency override pins the compatible 8.3.3 security patch until Angu
 
 1. Create or open a brief. Set a positive **assistant budget** if you want a cap; zero blocks AI
    calls, while leaving it unspecified does not set a dollar cap. Compute limits are separate.
-2. Open **Research workspace**, then import a paper URL, upload a PDF, or paste at least 100
-   characters of source text. Check the extracted source pages.
+2. Supply a paper link **or** choose a PDF during setup. A PDF opens in the research workspace
+   with its extracted pages ready; supported links import automatically when the workspace opens.
+   Saved sources are reused after refresh. Pasting an excerpt is an optional fallback, not a
+   required step. For unsupported links, upload the PDF in the workspace.
 3. Run **Understand the paper**, then **Plan the experiment**. In Guided mode, **Draft the code**
    stays blocked until you approve the current plan.
 4. Approve the plan, generate code and run the static review. Download the project ZIP and
@@ -144,6 +146,7 @@ the tab stops future dispatch; an already accepted backend step can finish. API 
 unfinished requests interrupted and require an explicit retry.
 
 See [AI workflow architecture and limits](docs/ai-workflow.md).
+For a client walkthrough, use [the demo checklist and verified scope](docs/client-demo-checklist.md).
 
 ## Check project setup and revision history
 

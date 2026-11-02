@@ -40,6 +40,21 @@ Run, Retrain and Reimplement affect planning instructions, not available executi
 
 ## State and human feedback
 
+Projects accept either a URL or a PDF. New-project PDF uploads attach to the saved project and
+open the research workspace directly. A failed upload preserves the project and allows a
+replacement without creating another project. URLs are optional for PDF-only projects.
+
+On opening a workspace without a source, the UI imports its saved URL automatically. Existing
+sources take precedence and are not downloaded again. arXiv abstract links, CVF paper pages and
+OpenReview forum links resolve to PDFs. Unsupported or inaccessible links offer PDF upload;
+the excerpt-paste form stays collapsed as a fallback. Extraction accepts text-based PDFs up to
+10 MB / 80 pages, includes CFF font decoding, and does not perform OCR.
+
+Reattaching identical extracted text preserves current outputs. Changing the paper URL clears
+the current source and outputs, while retaining historical runs; changing only experiment
+settings preserves the source. Saved metrics refill their form after reload, background polling
+preserves unsaved metric edits, and activity timestamps include their UTC offset.
+
 `paper_sources` stores immutable extracted text versions and SHA-256 digests. `agent_runs` stores
 the input snapshot, source identity, output, status, error and usage. `research_workspaces` stores
 the active source, artifact IDs, approved plan, feedback, evidence and workspace version.
@@ -109,6 +124,13 @@ it does not install dependencies or start training. Review the exported README, 
 project yourself. Direct Colab/Kaggle submission, VS Code extensions and MCP adapters are planned.
 
 ## Validation
+
+Client-flow audit on 2 November 2026: 69 backend tests and Ruff passed; all 17 browser scenarios
+passed across landing, setup, revision conflicts, PDF-only creation, failed-upload recovery,
+automatic import, source reuse, guided approval, feedback, cancellation, metrics persistence,
+provider failure and mobile layouts. Angular production build passed with the existing landing
+CSS size warning. Live import of the public ResNet sample extracted 12 pages and 59,411 characters.
+The browser AI-stage scenarios use controlled responses; this audit made no paid AI calls.
 
 The backend suite includes approval, feedback, source parsing, citation matching, cancellation,
 restart recovery, idempotency, budget and export checks. Browser tests cover the research UI

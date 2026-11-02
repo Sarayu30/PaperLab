@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Project, ProjectApi } from '../projects/project-api';
 import { AgentTrace } from './agent-trace';
 import { ProviderStatus, ResearchApi, researchError, Stage, Workspace } from './research-api';
@@ -20,6 +20,9 @@ import { ProviderStatus, ResearchApi, researchError, Stage, Workspace } from './
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Research implements OnDestroy {
+  private readonly navigationError = inject(Router).currentNavigation()?.extras.state?.[
+    'uploadError'
+  ] as string | undefined;
   private readonly api = inject(ResearchApi);
   private readonly projects = inject(ProjectApi);
   readonly id = inject(ActivatedRoute).snapshot.paramMap.get('id')!;
@@ -91,7 +94,8 @@ export class Research implements OnDestroy {
       this.project.set(project);
       this.workspace.set(workspace);
       this.provider.set(provider);
-      if (!workspace.source && project.setup.paper_url) await this.importUrl();
+      if (this.navigationError && !workspace.source) this.error.set(this.navigationError);
+      else if (!workspace.source && project.setup.paper_url) await this.importUrl();
       this.schedule();
     } catch (e) {
       this.error.set(researchError(e));

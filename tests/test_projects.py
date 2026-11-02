@@ -88,3 +88,15 @@ def test_unchanged_revision_rolls_back(client, setup):
 def test_missing_project(client):
     assert client.get(f"/projects/{uuid4()}").status_code == 404
     assert client.get(f"/projects/{uuid4()}/revisions").status_code == 404
+
+
+def test_pdf_only_project_does_not_require_a_link(client, setup):
+    response = client.post("/projects", json={**setup, "paper_url": None})
+    assert response.status_code == 201
+    project = response.json()
+    assert project["setup"]["paper_url"] is None
+    root = f"/projects/{project['id']}/research"
+    state = client.get(root).json()
+    response = client.post(root + "/source/url", json={"expected_version": state["version"]})
+    assert response.status_code == 422
+    assert "Upload a PDF" in response.json()["detail"]

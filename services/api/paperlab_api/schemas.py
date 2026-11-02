@@ -94,7 +94,7 @@ class ProjectSetup(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True, allow_inf_nan=False)
 
     name: Annotated[str, StringConstraints(min_length=1, max_length=120)]
-    paper_url: HttpUrl = Field(max_length=2048)
+    paper_url: HttpUrl | None = Field(default=None, max_length=2048)
     target_result: Annotated[str, StringConstraints(min_length=3, max_length=1000)]
     dataset: ShortText
     metric: Annotated[str, StringConstraints(min_length=1, max_length=80)]

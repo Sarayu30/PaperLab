@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { errorMessage, ProjectApi, ProjectSetup } from './project-api';
+import { ResearchApi } from '../research/research-api';
 import {
   resourceCatalog,
   workloads,
@@ -26,6 +27,7 @@ const requiredText = (max: number, min = 1) => [
 })
 export class ProjectForm {
   private readonly api = inject(ProjectApi);
+  private readonly research = inject(ResearchApi);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder).nonNullable;
   private readonly route = inject(ActivatedRoute);
@@ -44,13 +46,12 @@ export class ProjectForm {
   readonly environmentKeys = Object.keys(environments) as (keyof typeof environments)[];
   readonly requirements = signal<ResourceRequirement[]>([]);
   readonly resourceError = signal('');
+  readonly paperFile = signal<File | null>(null);
+  readonly paperError = signal('');
   private legacy: Pick<ProjectSetup, 'max_gpu_hours' | 'max_llm_cost_usd' | 'hardware'> = {};
   readonly form = this.fb.group({
     name: ['', requiredText(120)],
-    paper_url: [
-      '',
-      [Validators.required, Validators.pattern(/^https?:\/\/\S+$/), Validators.maxLength(2048)],
-    ],
+    paper_url: ['', [Validators.pattern(/^https?:\/\/\S+$/), Validators.maxLength(2048)]],
     target_result: ['', requiredText(1000, 3)],
     dataset: ['', requiredText(200)],
     metric: ['', requiredText(80)],
@@ -86,6 +87,7 @@ export class ProjectForm {
       const project = await this.api.get(this.id);
       this.form.reset({
         ...project.setup,
+        paper_url: project.setup.paper_url || '',
         workload: project.setup.resource_plan.workload,
         environment: project.setup.resource_plan.environment,
         note: '',
@@ -116,6 +118,20 @@ export class ProjectForm {
       metric: 'test_error',
       workload: 'training',
     });
+  }
+
+  choosePaper(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    this.paperError.set('');
+    this.paperFile.set(null);
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith('.pdf') || file.size > 10 * 1024 * 1024) {
+      this.paperError.set('Choose a PDF no larger than 10 MB.');
+      input.value = '';
+      return;
+    }
+    this.paperFile.set(file);
   }
 
   hasResource(kind: ResourceKind) {
@@ -178,6 +194,11 @@ export class ProjectForm {
   async save() {
     if (this.saving() || this.loading() || this.conflict()) return;
     this.submitted.set(true);
+    this.paperError.set('');
+    if (!this.id && !this.form.controls.paper_url.value.trim() && !this.paperFile()) {
+      this.paperError.set('Add a paper link or choose a PDF. You only need one.');
+      return;
+    }
     if (!this.validateResources() || this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -187,6 +208,7 @@ export class ProjectForm {
     const { note, workload, environment, ...fields } = this.form.getRawValue();
     const setup: ProjectSetup = {
       ...fields,
+      paper_url: fields.paper_url.trim() || null,
       ...this.legacy,
       resource_plan: {
         workload,
@@ -202,7 +224,22 @@ export class ProjectForm {
       const result = this.id
         ? await this.api.revise(this.id, this.revision(), setup, note)
         : await this.api.create(setup);
-      await this.router.navigate(['/projects', result.id], { state: { saved: true } });
+      const file = this.paperFile();
+      if (!this.id && file) {
+        let uploadError = '';
+        try {
+          const workspace = await this.research.get(result.id);
+          await this.research.upload(result.id, workspace.version, file);
+        } catch (error) {
+          uploadError =
+            'Your project is saved, but the PDF could not be attached. ' + errorMessage(error);
+        }
+        await this.router.navigate(['/projects', result.id, 'research'], {
+          state: { uploadError },
+        });
+      } else {
+        await this.router.navigate(['/projects', result.id], { state: { saved: true } });
+      }
     } catch (error) {
       this.conflict.set(error instanceof HttpErrorResponse && error.status === 409);
       this.error.set(errorMessage(error));

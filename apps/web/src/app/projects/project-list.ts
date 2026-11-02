@@ -33,7 +33,8 @@ export class ProjectList {
   search(event: Event) {
     this.query.set((event.target as HTMLInputElement).value);
   }
-  paperReference(url: string) {
+  paperReference(url: string | null) {
+    if (!url) return 'PDF project';
     try {
       const paper = new URL(url);
       return (

@@ -57,9 +57,13 @@
           <dd>{{ workloads[p.setup.resource_plan.workload].label }}</dd>
         </div>
       </dl>
-      <a class="paper-link" [href]="p.setup.paper_url" target="_blank" rel="noopener noreferrer"
-        >Open original paper <span aria-hidden="true">↗</span></a
-      >
+      @if (p.setup.paper_url) {
+        <a class="paper-link" [href]="p.setup.paper_url" target="_blank" rel="noopener noreferrer"
+          >Open original paper <span aria-hidden="true">↗</span></a
+        >
+      } @else {
+        <p class="quiet-note">Open the research workspace to view or attach the paper PDF.</p>
+      }
     </section>
     <section class="panel preferences-panel">
       <h2>Working agreement</h2>

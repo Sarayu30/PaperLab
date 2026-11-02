@@ -71,6 +71,25 @@
           @if (invalid('paper_url')) {
             <small class="field-error">Enter a valid http or https URL.</small>
           }
+          @if (!id) {
+            <label for="paper-pdf">Or upload a paper PDF</label>
+            <input
+              id="paper-pdf"
+              type="file"
+              accept=".pdf,application/pdf"
+              (change)="choosePaper($event)"
+            />
+            <small
+              >A link or a PDF is enough. Text-based PDFs up to 10 MB / 80 pages. If you supply
+              both, we use the PDF.</small
+            >
+            @if (paperFile(); as file) {
+              <small role="status">Selected: {{ file.name }}</small>
+            }
+          }
+          @if (paperError()) {
+            <small class="field-error" role="alert">{{ paperError() }}</small>
+          }
         </div>
         <div class="field">
           <label for="target_result">Target result</label

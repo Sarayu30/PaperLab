@@ -5,7 +5,7 @@ import { ResourcePlan } from './resources';
 
 export interface ProjectSetup {
   name: string;
-  paper_url: string;
+  paper_url: string | null;
   target_result: string;
   dataset: string;
   metric: string;

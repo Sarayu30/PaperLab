@@ -52,7 +52,8 @@ export class ProjectDetail {
       .map((key) => fieldLabels[key]);
   }
 
-  format(value: string | number | boolean | ResourcePlan): string {
+  format(value: string | number | boolean | ResourcePlan | null): string {
+    if (value === null) return 'Not provided';
     if (typeof value === 'object') return resourceSummary(value);
     if (typeof value === 'boolean') return value ? 'On' : 'Off';
     if (value === 'autonomous') return 'Autonomous within limits';

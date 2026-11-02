@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { paperPdf } from './pdf-fixture';
 
 async function createProject(page: Page, name: string) {
   await page.goto('/projects/new');
@@ -157,4 +158,52 @@ test('resource validation and notebook search', async ({ page }, info) => {
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBeTruthy();
+});
+
+test('create from PDF without a link and reuse the extracted paper after refresh', async ({
+  page,
+}, info) => {
+  await page.goto('/projects/new');
+  await page.getByRole('button', { name: 'Use sample setup' }).click();
+  await page.getByLabel('Project name', { exact: true }).fill('PDF-only client walkthrough');
+  await page.getByLabel('Paper URL', { exact: true }).fill('');
+  await page.getByLabel('Or upload a paper PDF').setInputFiles({
+    name: 'client-paper.pdf',
+    mimeType: 'application/pdf',
+    buffer: paperPdf(),
+  });
+  await page.getByRole('button', { name: 'Create project' }).click();
+  await expect(page.getByRole('heading', { name: 'Your paper is ready.' })).toBeVisible();
+  await expect(page.locator('.source-text')).toContainText('Fictional research fixture');
+  await expect(page.getByLabel('Paper text', { exact: true })).not.toBeVisible();
+  await page.reload();
+  await expect(page.getByText('client-paper.pdf', { exact: true })).toBeVisible();
+  await page.screenshot({ path: info.outputPath('pdf-ready.png'), fullPage: true });
+  await page.getByRole('link', { name: 'Experiment brief', exact: false }).click();
+  await page.getByRole('link', { name: 'Revise setup' }).click();
+  await expect(page.getByLabel('Paper URL', { exact: true })).toHaveValue('');
+});
+
+test('invalid PDF preserves the created project and allows replacement', async ({ page }) => {
+  let creates = 0;
+  page.on('request', (r) => {
+    if (r.method() === 'POST' && r.url().endsWith('/api/projects')) creates++;
+  });
+  await page.goto('/projects/new');
+  await page.getByRole('button', { name: 'Use sample setup' }).click();
+  await page.getByLabel('Paper URL', { exact: true }).fill('');
+  await page.getByLabel('Or upload a paper PDF').setInputFiles({
+    name: 'broken.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('not a PDF'),
+  });
+  await page.getByRole('button', { name: 'Create project' }).click();
+  await expect(page.getByRole('alert')).toContainText('Your project is saved');
+  await page.locator('input[type=file]').setInputFiles({
+    name: 'replacement.pdf',
+    mimeType: 'application/pdf',
+    buffer: paperPdf(),
+  });
+  await expect(page.getByRole('heading', { name: 'Your paper is ready.' })).toBeVisible();
+  expect(creates).toBe(1);
 });

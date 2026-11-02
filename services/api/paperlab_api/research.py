@@ -670,6 +670,8 @@ def research_router(service):
             if not project:
                 raise HTTPException(404, "Project not found")
             url = session.get(ContractRevision, (project.id, project.revision)).setup["paper_url"]
+        if not url:
+            raise HTTPException(422, "This project has no paper link. Upload a PDF instead.")
         return service.attach(str(project_id), request.expected_version, url, fetch_pdf(url))
 
     @router.post("/source/pdf")

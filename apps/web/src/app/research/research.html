@@ -127,18 +127,23 @@
             } @else if (importing()) {
               Downloading the paper from your saved link and extracting its pages. No AI credits are
               used.
-            } @else {
+            } @else if (project()?.setup?.paper_url) {
               We couldn't read a paper from the saved link. Upload its PDF below, or retry the
               import.
+            } @else {
+              Upload a text-based PDF. PaperLab will extract its pages for the agents automatically.
             }
           </p>
           @if (importing()) {
             <p role="status">Importing paper…</p>
           }
           <div class="source-actions">
-            <button class="button secondary" (click)="importUrl()" [disabled]="busy()">
-              {{ w.source ? 'Reimport saved link' : 'Retry saved link' }}</button
-            ><label class="upload-label"
+            @if (project()?.setup?.paper_url) {
+              <button class="button secondary" (click)="importUrl()" [disabled]="busy()">
+                {{ w.source ? 'Reimport saved link' : 'Retry saved link' }}
+              </button>
+            }
+            <label class="upload-label"
               >{{ w.source ? 'Replace PDF' : 'Upload PDF'
               }}<input
                 type="file"

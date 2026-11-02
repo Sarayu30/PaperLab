@@ -1,6 +1,6 @@
 # Groq research workflow
 
-Implemented 31 October 2026. Angular presents a persistent FastAPI workflow backed by SQLAlchemy
+Updated 2 November 2026. Angular presents a persistent FastAPI workflow backed by SQLAlchemy
 and Alembic. It is a local, single-user workspace, not a hosted training service.
 
 ## Model connection
@@ -9,9 +9,10 @@ FastAPI loads the root `.env` without overriding process environment variables. 
 is used only in the provider Authorization header. `GET /ai/status` exposes the configured
 boolean and model name, never the key. Restart after changing the key or model.
 
-The default is `openai/gpt-oss-120b`. GPT-OSS calls use a strict structural JSON schema and low
-reasoning effort; other configured models use JSON-object mode. All responses undergo local
-Pydantic validation, duplicate-key rejection, task dependency checks and path validation.
+The default is `openai/gpt-oss-120b`. Deep Agents uses `ChatGroq`, native tool calls and a final
+Pydantic-validated `agent_output` tool. GPT-OSS uses low reasoning effort. Models must support
+tool calling. The earlier single-call JSON client remains in the repository for compatibility
+tests but is not the research workflow's default provider. Task dependency and path checks remain.
 Code drafts must contain a README, Python source and a dependency file; Python is parsed for
 syntax without execution. These checks do not establish functional or scientific correctness.
 
@@ -32,8 +33,9 @@ Groq references: [structured outputs](https://console.groq.com/docs/structured-o
 | Report | Documentation author | Review | Draft report with limitations and available evidence |
 | Chat | Learning assistant | Paper and current context | Explanation; no state-changing tools |
 
-These roles use separate prompts and stored calls, currently with the same configured model.
-“Independent reviewer” means a separate review role, not an independent model or execution grader.
+These roles now use separate graph configurations, tool allowlists and stored calls, with the
+same configured model. Analysis, planning and review may delegate to an evidence-auditor subagent.
+The methodology reviewer is not an independent model or execution grader.
 Run, Retrain and Reimplement affect planning instructions, not available execution capabilities.
 
 ## State and human feedback
@@ -43,7 +45,7 @@ the input snapshot, source identity, output, status, error and usage. `research_
 the active source, artifact IDs, approved plan, feedback, evidence and workspace version.
 
 Each mutation supplies `expected_version`; stale revisions receive HTTP 409. Every run has an
-idempotency UUID. One run is active per project, with at most two provider requests across the
+idempotency UUID. One run is active per project, with at most two agent workflows across the
 single API process. A process-local lock serializes workflow mutations. Do not use multiple API
 workers; a shared queue and transactional worker claims are a later milestone.
 
@@ -58,15 +60,27 @@ and be billed, but its output cannot become a current artifact. Startup marks un
 interrupted without automatic retries. Autonomous dispatch is browser-driven and pauses when
 the tab closes; the current backend call survives browser refresh.
 
+LangGraph also stores per-step checkpoints in `.data/agent-checkpoints.sqlite`, keyed by run UUID.
+This preserves graph messages and virtual files, but the application does not yet expose checkpoint
+resume. Retrying creates a new run. Human approval remains at the application stage boundary;
+there is no external execution tool requiring a LangGraph tool-level interrupt yet.
+
 ## Evidence and budgets
 
-The context selector includes the first page and keyword-ranked excerpts: up to 22,000
-characters total and 5,000 per page. It does not perform OCR, figure understanding or exhaustive
-full-paper analysis. Quotes are matched against the supplied excerpts; unmatched citations are
-removed and flagged. A matching quote does not prove the surrounding interpretation is correct.
+The agent starts with brief metadata and must read page 1. Tools can search the complete extracted
+text snapshot, read page slices, and retrieve saved artifacts or individual code files. Retrieval
+is bounded and does not guarantee exhaustive full-paper analysis; there is no OCR or figure
+understanding. Quotes are checked against the source snapshot. A matching quote does not prove
+the surrounding interpretation is correct.
 
 Assistant budgets use estimated Groq list prices for GPT-OSS 20B/120B, with a conservative
-pre-call reservation and post-call usage accounting. Failed calls with uncertain usage retain
+pre-run reservation for up to twelve model attempts shared by parent and specialist, and post-run
+usage accounting. Each model input is limited to 30,000 serialized bytes, with 6,000 output
+tokens per call; up to 24 domain/filesystem tool calls and a ten-minute boundary-checked deadline
+apply. Hidden summarization calls and unrestricted default subagents are disabled. HTTP 429
+may trigger up to four waits/retries (at most 60 seconds each) within the same call budget;
+cancellation is checked during the wait. Other failures are not automatically retried.
+Calls with uncertain usage retain
 their reservation. A zero-dollar cap blocks calls. A positive dollar cap requires a priced
 model and known prior cost estimates. Unspecified budgets have no dollar cap, but a project is
 limited to 50 submitted AI requests per UTC day. Provider account quotas can stop calls earlier.
@@ -102,7 +116,20 @@ using controlled provider responses; existing brief tests use a real local API. 
 checks use an isolated database and a clearly fictional small methodology, not a real benchmark.
 Synthetic metrics in that check test data flow only and must not be treated as experimental evidence.
 
-Validation on 31 October 2026:
+Deep Agents validation completed by 2 November 2026:
+
+- 65 backend tests and Ruff passed, including shared subagent limits, virtual file repair,
+  checkpoint persistence, rate-limit waits and schema validation of plain JSON final answers.
+- Four research-workspace browser scenarios and the Angular production build passed during
+  this integration. The build retains the existing landing CSS size warning.
+- Live Groq analysis and planning checks retrieved source evidence. A separate live code-agent
+  check used a fresh fictional methodology and a fixed synthetic setup plan: it wrote README.md,
+  requirements.txt and evaluator.py, called static validation, recovered from two rate-limit
+  waits, completed in eight model attempts, and exported a ZIP. No generated code was executed.
+- The local Angular proxy reports the configured Deep Agents runtime and its 12-model/24-tool
+  shared limits. These integration checks do not establish correctness for arbitrary papers.
+
+Historical single-call workflow validation on 31 October 2026:
 
 - 53 backend tests passed; Ruff passed and the locked dependency sync succeeded.
 - The existing eight browser scenarios and four research-workspace scenarios passed. Research
@@ -119,5 +146,5 @@ Validation on 31 October 2026:
 - No generated training code was executed and no real paper result was reproduced in this check.
 
 Next work: sandboxed execution, real data/environment checks, persisted autonomous dispatch,
-independent evaluation, full-paper retrieval and authenticated multi-user operation. The original
-LangGraph/Deep Agents architecture remains a roadmap, not a description of installed infrastructure.
+independent evaluation, user-facing checkpoint resume and authenticated multi-user operation.
+See [Deep Agents implementation and research sources](agent-architecture.md).

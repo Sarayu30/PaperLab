@@ -19,12 +19,15 @@ Human-guided workflows for reproducing machine learning research.
 - Retain source versions, run history, usage estimates and previous outputs across refreshes.
 - Stop an AI step, reject stale outputs, and enforce estimated assistant budgets before calls.
 - Export code, a Colab/Kaggle handoff notebook, source provenance and a Markdown report.
+- Run Deep Agents tool loops for evidence retrieval, virtual code drafting and static checks.
+- Inspect live agent actions, specialist delegation and model/tool call counts.
 
 This is a local AI research workspace. Generated code is a **draft**, checked for required files
 and Python syntax but not executed by PaperLab. Training, sandbox workers, direct Kaggle/Colab
 execution, independent metric verification, authentication, and multi-process orchestration are
-still planned. The current controller uses explicit stages and scoped Groq prompts; LangGraph,
-Deep Agents and MCP execution adapters are not installed.
+still planned. The stage controller now runs Deep Agents graphs on LangGraph, with scoped tools,
+optional evidence-auditor delegation and local SQLite checkpoints. MCP execution adapters are
+not installed. See [the agent architecture and source map](docs/agent-architecture.md).
 
 ## Run the Angular app
 
@@ -128,7 +131,12 @@ The Vite dependency override pins the compatible 8.3.3 security patch until Angu
 7. After an actual external run, enter numeric metrics, hardware and the run command. Result
    analysis labels this evidence as self-reported. Generate extension proposals and a report.
 8. Refresh: saved sources, outputs and history remain. If a provider rate limit occurs, wait
-   and click **Run this step** again; PaperLab does not retry paid calls automatically.
+   and click **Run this step** again if bounded rate-limit recovery does not finish. Only HTTP 429
+   can trigger automatic retries: at most four per stage, waiting up to 60 seconds each and counted
+   against the shared call limit. Other provider failures require an explicit retry.
+9. Expand **Agent actions** on a stage or in **Activity & usage**. Expect paper retrieval before
+   the final answer. Code generation can write/edit virtual files and run static checks. Actions
+   and call counts remain visible after refresh; specialist delegation is optional.
 
 Autonomous mode continues eligible AI stages while the tab stays open. It skips result analysis
 until metrics exist, stops on failures or human changes, and does not launch training. Closing

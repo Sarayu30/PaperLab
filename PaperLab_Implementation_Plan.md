@@ -378,14 +378,22 @@ proposals, reports and chat. Human feedback invalidates affected downstream arti
 outdated approval. Sources, run snapshots, usage estimates and revisions persist in the database.
 Exports include generated files, a handoff notebook, provenance and a Markdown report.
 
-This foundation uses a deterministic stage controller and scoped prompts, not LangGraph or Deep
-Agents yet. Autonomous chaining runs while the browser tab remains open. Interrupted provider
+As of 2 November 2026, the stage controller invokes Deep Agents graphs backed by LangGraph. Agents
+retrieve paper evidence, inspect artifacts, write and repair virtual draft files, and can delegate
+evidence questions to a scoped specialist. Shared middleware bounds model/tool calls and checks
+cancellation. Local SQLite checkpoints and action traces persist; checkpoint resume is not yet
+exposed. Human approval remains at the application stage boundary. See `docs/agent-architecture.md`.
+
+Autonomous stage chaining runs while the browser tab remains open. Interrupted provider
 calls need explicit retry. The API never executes generated code; training, platform adapters,
 independent metric verification, execution budget enforcement and authenticated deployment remain
 future milestones. Current assistant dollar caps use provider list-price estimates, not invoices.
 
-The default Groq model is GPT-OSS 120B. Structured outputs, task-graph validation, required project
-files and Python syntax checks reject malformed drafts. These checks do not certify reproductions.
+The default Groq model is GPT-OSS 120B through ChatGroq. Schema-validated final answers, task-graph
+checks, required project files and Python syntax checks reject malformed drafts. Incomplete code
+submissions return to the agent for up to two repair rounds within the shared limits. These checks
+do not certify reproductions. Per-stage spend is now reserved for a bounded tool loop, including
+specialist calls, rather than a single completion.
 See `docs/ai-workflow.md` for the implemented behavior and `README.md` for the manual walkthrough.
 
 Build complete vertical slices so that each milestone demonstrates working behavior. The following six to eight week sequence is a planning estimate for one developer already comfortable with Python, web APIs, and ML tooling. It assumes accessible models and compute; it is not a delivery guarantee.

@@ -16,6 +16,7 @@ dependencies = [
   "deepagents>=0.7,<0.8",
   "langchain-groq>=1,<2",
   "langgraph-checkpoint-sqlite>=3,<4",
+  "fonttools>=4,<5",
 ]
 
 [dependency-groups]

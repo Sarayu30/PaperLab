@@ -176,6 +176,32 @@ test('saved PDFs are reused without importing or requesting text again', async (
   await expect(page.getByLabel('Paper text', { exact: true })).not.toBeVisible();
 });
 
+test('saved metrics refill after reload and polling preserves edits', async ({ page }) => {
+  const { state } = await mockWorkspace(page);
+  state.evidence = {
+    metrics: { accuracy: 0.91 },
+    hardware: 'CPU',
+    command: 'python evaluate.py',
+    notes: 'Seed 42',
+  };
+  await page.goto(`/projects/${projectId}/research`);
+  await attach(page);
+  await page.getByRole('button', { name: 'Record run metrics' }).click();
+  await expect(page.getByLabel('Metrics JSON')).toHaveValue(/0.91/);
+  await expect(page.getByLabel('Hardware used')).toHaveValue('CPU');
+  await page.getByLabel('Metrics JSON').fill('{"accuracy": 0.92}');
+  await page.waitForResponse(
+    (r) => r.url().endsWith('/research') && r.request().method() === 'GET',
+  );
+  await expect(page.getByLabel('Metrics JSON')).toHaveValue('{"accuracy": 0.92}');
+  await page.getByRole('button', { name: 'Save run metrics' }).click();
+  await page.reload();
+  await page.getByRole('button', { name: 'Record run metrics' }).click();
+  await expect(page.getByLabel('Metrics JSON')).toHaveValue(/0.92/);
+  await expect(page.getByLabel('Command executed')).toHaveValue('python evaluate.py');
+  await expect(page.getByLabel('Run notes, seeds, splits and differences')).toHaveValue('Seed 42');
+});
+
 test('failed link import offers PDF upload and optional excerpt fallback', async ({ page }) => {
   await mockWorkspace(page);
   await page.route('**/source/url', (route) =>

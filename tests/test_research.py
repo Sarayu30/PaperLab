@@ -153,6 +153,8 @@ def test_setup_revision_invalidates_ai_artifacts(research):
     assert after["artifacts"] == {}
     assert after["project_revision"] == 2
     assert after["source"]["id"] == before["source"]["id"]
+    assert before["runs"][0]["created_at"].endswith(("Z", "+00:00"))
+    assert before["runs"][0]["finished_at"].endswith(("Z", "+00:00"))
 
 
 def test_changing_paper_link_detaches_old_source(research):

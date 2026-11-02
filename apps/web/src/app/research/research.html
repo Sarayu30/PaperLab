@@ -276,18 +276,30 @@
             id="metrics"
             rows="5"
             [(ngModel)]="metrics"
+            (ngModelChange)="evidenceDirty = true"
             placeholder='{"accuracy": 0.91, "training_seconds": 120}'
           ></textarea>
           <label for="hardware">Hardware used</label
-          ><input id="hardware" [(ngModel)]="hardware" placeholder="CPU / GPU model and memory" />
+          ><input
+            id="hardware"
+            [(ngModel)]="hardware"
+            (ngModelChange)="evidenceDirty = true"
+            placeholder="CPU / GPU model and memory"
+          />
           <label for="command">Command executed</label
           ><input
             id="command"
             [(ngModel)]="command"
+            (ngModelChange)="evidenceDirty = true"
             placeholder="python -m src.train --config config.json"
           />
           <label for="evidence-notes">Run notes, seeds, splits and differences</label
-          ><textarea id="evidence-notes" rows="5" [(ngModel)]="evidenceNotes"></textarea>
+          ><textarea
+            id="evidence-notes"
+            rows="5"
+            [(ngModel)]="evidenceNotes"
+            (ngModelChange)="evidenceDirty = true"
+          ></textarea>
           <button
             class="button primary"
             (click)="saveEvidence()"

@@ -59,8 +59,9 @@ def run_view(run):
         "source_id": run.context.get("source_id"),
         "source_digest": run.context.get("source_digest"),
         "included_pages": [p["page"] for p in run.context.get("source_pages", [])],
-        "created_at": run.created_at,
-        "finished_at": run.finished_at,
+        # SQLite drops timezone information; these timestamps are written in UTC.
+        "created_at": run.created_at.replace(tzinfo=UTC),
+        "finished_at": run.finished_at.replace(tzinfo=UTC) if run.finished_at else None,
     }
 
 

@@ -71,6 +71,7 @@ export class Research implements OnDestroy {
   hardware = '';
   command = '';
   evidenceNotes = '';
+  evidenceDirty = false;
   private timer?: ReturnType<typeof setTimeout>;
   private destroyed = false;
 
@@ -93,6 +94,7 @@ export class Research implements OnDestroy {
       ]);
       this.project.set(project);
       this.workspace.set(workspace);
+      this.restoreEvidence(workspace);
       this.provider.set(provider);
       if (this.navigationError && !workspace.source) this.error.set(this.navigationError);
       else if (!workspace.source && project.setup.paper_url) await this.importUrl();
@@ -115,6 +117,14 @@ export class Research implements OnDestroy {
       // A completed local action owns its newer state; discard an older poll response.
       if (this.busy() || this.workspace() !== previous) return;
       this.workspace.set(next);
+      if (!this.evidenceDirty) this.restoreEvidence(next);
+      if (this.project()?.revision !== next.project_revision) {
+        this.project.set(await this.projects.get(this.id));
+        this.auto.set(false);
+        this.notice.set(
+          'The experiment brief changed. Review the updated setup before continuing.',
+        );
+      }
       if (previous && previous.version !== next.version) this.auto.set(false);
       if (this.auto() && !next.active_run && !this.busy()) {
         const last = next.runs[0];
@@ -319,11 +329,20 @@ export class Research implements OnDestroy {
           { metrics, hardware: this.hardware, command: this.command, notes: this.evidenceNotes },
           'Metrics saved as self-reported evidence.',
         )
-      )
+      ) {
+        this.evidenceDirty = false;
         this.selected.set('results');
+      }
     } catch {
       this.error.set('Enter a JSON object of numeric metrics, such as {"accuracy": 0.91}.');
     }
+  }
+  private restoreEvidence(state: Workspace) {
+    this.metrics = state.evidence.metrics ? JSON.stringify(state.evidence.metrics, null, 2) : '';
+    this.hardware = state.evidence.hardware || '';
+    this.command = state.evidence.command || '';
+    this.evidenceNotes = state.evidence.notes || '';
+    this.evidenceDirty = false;
   }
   showCitation(page: number) {
     this.selectedPage.set(page);

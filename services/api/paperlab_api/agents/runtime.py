@@ -28,6 +28,7 @@ from ..research_schemas import AgentOutput
 from .guard import MAX_OUTPUT_TOKENS, AgentFailure, AgentGuard, RunControl
 from .registry import AGENTS
 from .tools import draft_files, make_tools, project_findings
+from .validation import DraftValidation
 
 
 class agent_output(AgentOutput):
@@ -217,6 +218,8 @@ class DeepResearchAgent:
                     tool_description="Track tasks as pending, in_progress or completed.",
                 )
             )
+        if stage == "implementation":
+            middleware.append(DraftValidation(control))
         agent = create_deep_agent(
             model=model,
             name=definition.name,

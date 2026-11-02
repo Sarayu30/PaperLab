@@ -240,6 +240,8 @@ def test_virtual_filesystem_denies_writes_outside_draft(tmp_path):
             message(action("read_paper_page", {"page": 1})),
             message(action("write_file", {"file_path": "/secret.py", "content": "test"})),
             finish(),
+            finish(),
+            finish(),
         ],
     )
     with pytest.raises(AgentFailure, match="static checks"):
@@ -251,6 +253,32 @@ def test_virtual_filesystem_denies_writes_outside_draft(tmp_path):
         if getattr(m, "name", "") == "write_file"
     ]
     assert any("denied" in r.lower() for r in results)
+
+
+def test_premature_submission_returns_missing_files_to_agent(tmp_path):
+    runtime, model = runner(
+        tmp_path,
+        [
+            message(action("read_paper_page", {"page": 1})),
+            message(
+                action("write_file", {"file_path": "/draft/README.md", "content": "Demo"}),
+                action("write_file", {"file_path": "/draft/model.py", "content": "value = 1"}),
+            ),
+            finish(),
+            message(
+                action(
+                    "write_file",
+                    {"file_path": "/draft/requirements.txt", "content": "# Standard library only"},
+                )
+            ),
+            message(action("validate_project", {})),
+            finish(),
+        ],
+    )
+    output, usage = runtime.generate("Implement.", context("implementation"), AgentOutput)
+    assert len(output["files"]) == 3
+    assert any(e["kind"] == "validation_repair" for e in usage["agent_trace"])
+    assert any("Missing dependency file" in str(m.content) for m in model.requests[3]["messages"])
 
 
 def test_default_model_can_be_constructed_without_network(tmp_path, monkeypatch):

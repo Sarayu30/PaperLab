@@ -9,7 +9,12 @@ from langchain_core.messages import AIMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_groq import ChatGroq
 from langgraph.checkpoint.sqlite import SqliteSaver
-from paperlab_api.agents.guard import MAX_MODEL_CALLS, AgentFailure
+from paperlab_api.agents.guard import (
+    MAX_MODEL_CALLS,
+    MAX_RATE_RETRIES,
+    AgentFailure,
+    rate_limit_delay,
+)
 from paperlab_api.agents.runtime import DeepResearchAgent
 from paperlab_api.agents.tools import make_tools
 from paperlab_api.research_schemas import AgentOutput
@@ -287,7 +292,9 @@ def test_rate_limit_wait_respects_retry_cap_and_records_uncertain_usage(tmp_path
     assert usage["rate_limit_retries"] == 1
     assert usage["incomplete_usage"] is True
     assert any(e["kind"] == "rate_limit_wait" for e in usage["agent_trace"])
-    runtime, model = runner(tmp_path, [error, error, error, finish()])
+    runtime, model = runner(tmp_path, [error] * (MAX_RATE_RETRIES + 1) + [finish()])
     with pytest.raises(AgentFailure, match="rate limit"):
         runtime.generate("Analyze.", context(), AgentOutput)
-    assert len(model.requests) == 3
+    assert len(model.requests) == MAX_RATE_RETRIES + 1
+    error.body = {"message": "Please try again in 20.805s."}
+    assert rate_limit_delay(error) == pytest.approx(22.805)

@@ -1,6 +1,7 @@
 """Shared parent/subagent limits, cancellation checks, accounting and public action events."""
 
 import json
+import re
 import threading
 import time
 
@@ -16,6 +17,25 @@ MAX_TOOL_CALLS = 24
 MAX_INPUT_BYTES = 30000
 MAX_OUTPUT_TOKENS = 6000
 MAX_SECONDS = 600
+MAX_RATE_RETRIES = 4
+
+
+def rate_limit_delay(exc):
+    """Groq's token reset hint can be longer than its generic Retry-After header."""
+    try:
+        delay = max(1, float(exc.response.headers.get("retry-after", "30")))
+    except (ValueError, TypeError):
+        delay = 30
+    body = exc.body if isinstance(exc.body, dict) else {}
+    error = body.get("error", body)
+    hint = (
+        re.search(r"try again in ([0-9]+(?:\.[0-9]+)?)s", str(error.get("message", "")))
+        if isinstance(error, dict)
+        else None
+    )
+    if hint:
+        delay = max(delay, float(hint.group(1)) + 2)
+    return delay
 
 
 def reserve_cost(rates):
@@ -115,11 +135,8 @@ class AgentGuard(AgentMiddleware):
             except groq.RateLimitError as exc:
                 with c.lock:
                     c.usage["incomplete_usage"] = True
-                    try:
-                        delay = max(1, float(exc.response.headers.get("retry-after", "30")))
-                    except (ValueError, TypeError):
-                        delay = 30
-                    if delay > 60 or c.usage["rate_limit_retries"] >= 2:
+                    delay = rate_limit_delay(exc)
+                    if delay > 60 or c.usage["rate_limit_retries"] >= MAX_RATE_RETRIES:
                         raise
                     c.usage["rate_limit_retries"] += 1
                     c.event(

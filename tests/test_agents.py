@@ -7,7 +7,6 @@ from uuid import uuid4
 import pytest
 from langchain_core.messages import AIMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
-from langchain_groq import ChatGroq
 from langgraph.checkpoint.sqlite import SqliteSaver
 from paperlab_api.agents.guard import (
     MAX_MODEL_CALLS,
@@ -15,6 +14,7 @@ from paperlab_api.agents.guard import (
     AgentFailure,
     rate_limit_delay,
 )
+from paperlab_api.agents.model import ResearchChatGroq as ChatGroq
 from paperlab_api.agents.runtime import DeepResearchAgent
 from paperlab_api.agents.tools import make_tools
 from paperlab_api.research_schemas import AgentOutput
@@ -152,6 +152,30 @@ def test_specialist_delegation_shares_model_budget(tmp_path):
     assert usage["model_calls"] == 5
     assert usage["total_tokens"] == 750
     assert any(e["agent"] == "evidence-auditor" for e in usage["agent_trace"])
+
+
+def test_plain_json_final_answer_is_schema_validated(tmp_path):
+    runtime, model = runner(
+        tmp_path,
+        [
+            message(action("read_paper_page", {"page": 1})),
+            message(
+                content=AgentOutput(title="JSON artifact", summary="Grounded.").model_dump_json()
+            ),
+        ],
+    )
+    output, _ = runtime.generate("Analyze.", context(), AgentOutput)
+    assert output["title"] == "JSON artifact"
+    assert model.requests[1]["tool_choice"] == "auto"
+    runtime, _ = runner(
+        tmp_path,
+        [
+            message(action("read_paper_page", {"page": 1})),
+            message(content="unstructured prose"),
+        ],
+    )
+    with pytest.raises(AgentFailure, match="artifact schema"):
+        runtime.generate("Analyze.", context(), AgentOutput)
 
 
 def test_cancellation_stops_next_model_call(tmp_path):

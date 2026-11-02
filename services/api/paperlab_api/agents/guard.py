@@ -170,6 +170,15 @@ class AgentGuard(AgentMiddleware):
                     c.usage["completion_tokens"] += usage.get("output_tokens", 0)
                     c.usage["total_tokens"] += usage.get("total_tokens", 0)
             c.event("model_finished", self.agent, "Model response received")
+        if self.schema and response.structured_response is None:
+            final = response.result[-1] if response.result else None
+            if isinstance(final, AIMessage) and not final.tool_calls:
+                try:
+                    response.structured_response = self.schema.model_validate_json(final.text)
+                except ValueError:
+                    raise ModelError(
+                        "Agent final answer did not match the required artifact schema. Retry."
+                    ) from None
         return response
 
     def wrap_tool_call(self, request, handler):

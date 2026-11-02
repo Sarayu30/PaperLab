@@ -18,7 +18,6 @@ from deepagents.profiles import (
 from langchain.agents import create_agent
 from langchain.agents.middleware import TodoListMiddleware
 from langchain.agents.structured_output import ToolStrategy
-from langchain_groq import ChatGroq
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langsmith import tracing_context
 
@@ -26,6 +25,7 @@ from ..config import ROOT, groq_settings
 from ..groq_client import ModelError
 from ..research_schemas import AgentOutput
 from .guard import MAX_OUTPUT_TOKENS, AgentFailure, AgentGuard, RunControl
+from .model import ResearchChatGroq as ChatGroq
 from .registry import AGENTS
 from .tools import draft_files, make_tools, project_findings
 from .validation import DraftValidation
